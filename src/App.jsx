@@ -365,7 +365,7 @@ export default function App() {
                   marginBottom: '1rem'
                 }}
               >
-                <Sparkles size={36} className="text-white animate-pulse" />
+                <Scale size={36} className="text-white" />
               </div>
               <h1 style={{ fontSize: '3.2rem', fontFamily: 'var(--font-head)', fontWeight: 800, lineHeight: 1.1 }}>
                 Virtual CA Auditor

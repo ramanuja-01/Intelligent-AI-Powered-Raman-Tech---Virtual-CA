@@ -36,7 +36,7 @@ export default function Sidebar({
     <aside className="sidebar no-print">
       <div className="sidebar-header">
         <div className="sidebar-logo-icon">
-          <Sparkles size={22} className="text-white animate-pulse" />
+          <Scale size={22} className="text-white" />
         </div>
         <div>
           <h2 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-head)', fontWeight: 800 }}>Virtual CA</h2>
