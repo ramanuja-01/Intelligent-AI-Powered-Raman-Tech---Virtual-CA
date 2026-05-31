@@ -39,7 +39,7 @@ export default function Sidebar({
           <Scale size={22} className="text-white" />
         </div>
         <div>
-          <h2 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-head)', fontWeight: 800 }}>Virtual CA</h2>
+          <h2 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-head)', fontWeight: 800 }}>TaxRecon Auditor</h2>
           <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', tracking: '0.05em' }}>
             Raman Tech Copilot
           </span>

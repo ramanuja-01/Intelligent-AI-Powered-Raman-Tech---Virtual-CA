@@ -1,4 +1,4 @@
-# Intelligent AI-Powered Virtual CA Auditor (Raman Tech)
+# Intelligent AI-Powered TaxRecon Auditor (Raman Tech)
 
 A production-grade, privacy-first, 100% serverless financial pre-audit and tax validation web application. The platform behaves like a senior Chartered Accountant (CA), deeply auditing Indian tax returns (ITR), invoices, ledger entries, bank exports, and GST summaries to identify compliance gaps, income omissions, arithmetic errors, and notice liabilities.
 
@@ -6,7 +6,7 @@ A production-grade, privacy-first, 100% serverless financial pre-audit and tax v
 
 ## 🔒 Privacy-First Security Architecture (Zero Database)
 
-Unlike standard fintech platforms that retain private accounting records on centralized servers, **Virtual CA is built with a zero-database, serverless-first layout**:
+Unlike standard fintech platforms that retain private accounting records on centralized servers, **TaxRecon Auditor is built with a zero-database, serverless-first layout**:
 * **On-Device Encrypted Workspace:** Documents, parsed structures, and findings are stored strictly within the **browser's local cache** (`localStorage` / `IndexedDB`). Sensitive financial data never leaves your machine.
 * **Consultation ID Lock & Purge:** Clicking "Close & Lock Session" serializes the active state, encrypts the values into your local browser cache index, and **forces a hard purge of active React memory**.
 * **One-Click Session Restoration:** You are issued a unique, secure Consultation ID (e.g., `RT-VCA-2026-[SHORT_HEX]`). Entering this ID on the landing page instantly decrypts and reloads your entire workspace.

@@ -354,23 +354,11 @@ export default function App() {
 
             {/* Hero Brand Section */}
             <div className="animate-fade-in-up" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-              <div 
-                style={{ 
-                  background: 'linear-gradient(135deg, var(--accent) 0%, #1e40af 100%)', 
-                  width: '72px', 
-                  height: '72px', 
-                  borderRadius: '16px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  boxShadow: '0 8px 24px var(--accent-glow)',
-                  marginBottom: '1rem'
-                }}
-              >
+              <div className="hero-brand-logo">
                 <Scale size={36} className="text-white" />
               </div>
               <h1 style={{ fontSize: '3.2rem', fontFamily: 'var(--font-head)', fontWeight: 800, lineHeight: 1.1 }}>
-                Virtual CA Auditor
+                TaxRecon Auditor
               </h1>
               <p style={{ color: 'var(--text-secondary)', fontSize: '1.15rem', maxWidth: '640px', lineHeight: 1.5 }}>
                 A production-grade, 100% serverless compliance engine. Audit ITR files, cash ledgers, bank exports, and GST summaries directly in your browser cache.
@@ -542,7 +530,7 @@ export default function App() {
                     <div style={{ background: 'var(--accent-glow)', padding: '0.35rem', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Scale size={16} style={{ color: 'var(--accent)' }} />
                     </div>
-                    <span>Virtual CA Auditor</span>
+                    <span>TaxRecon Auditor</span>
                   </div>
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
                     An intelligent corporate auditor by Raman Tech. Audits private tax returns, GST ledgers, and bank statements entirely on-device inside your browser local cache.
@@ -572,7 +560,7 @@ export default function App() {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.25rem', fontSize: '0.72rem', color: 'var(--text-secondary)', gap: '0.6rem', width: '100%' }}>
                 <span>© {new Date().getFullYear()} Ramanuja Pathy. All Rights Reserved. Designed & Maintained by Ramanuja Pathy.</span>
                 <span style={{ maxWidth: '720px', textAlign: 'center', lineHeight: 1.45 }}>
-                  Disclaimer: Virtual CA provides client-side pre-audit. licensed Chartered Accountants must verify and authorize all filings under regulatory codes.
+                  Disclaimer: TaxRecon Auditor provides client-side pre-audit. licensed Chartered Accountants must verify and authorize all filings under regulatory codes.
                 </span>
               </div>
             </footer>
@@ -668,13 +656,13 @@ export default function App() {
               <div>
                 <h3 style={{ fontSize: '1.3rem', fontFamily: 'var(--font-head)', fontWeight: 800 }}>Security & Consent Protocol</h3>
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Raman Tech Virtual CA
+                  Raman Tech TaxRecon Auditor
                 </span>
               </div>
             </div>
 
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              Welcome to the **Virtual CA pre-filing auditing console**. Before initializing, please review our strict privacy, GDPR, and SFT data processing terms:
+              Welcome to the **TaxRecon Auditor pre-filing auditing console**. Before initializing, please review our strict privacy, GDPR, and SFT data processing terms:
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}>
@@ -703,7 +691,7 @@ export default function App() {
             </div>
 
             <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', background: 'var(--bg-primary)', padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border)', lineHeight: 1.4 }}>
-              <strong>⚠️ Legal Notice:</strong> virtual CA provides automated auditing. Under regulatory guidelines, final returns filing authorization must be reviewed and signed off by a certified Chartered Accountant (CA).
+              <strong>⚠️ Legal Notice:</strong> TaxRecon Auditor provides automated auditing. Under regulatory guidelines, final returns filing authorization must be reviewed and signed off by a certified Chartered Accountant (CA).
             </p>
 
             <button 

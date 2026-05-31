@@ -328,7 +328,7 @@ export default function UploadWorkspace({
             <h3 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-head)' }}>Instant Demo Audit Packages</h3>
           </div>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-            No mock files on hand? Click any of our curated India-focused tax audit bundles to load synthetic data and trigger the full virtual CA audit flow instantly.
+            No mock files on hand? Click any of our curated India-focused tax audit bundles to load synthetic data and trigger the full TaxRecon Auditor audit flow instantly.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>

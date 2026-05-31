@@ -24,7 +24,7 @@ export default function AuditFindings({
   const [chatMessages, setChatMessages] = useState([
     { 
       sender: "assistant", 
-      text: "Namaste! I am your AI Virtual CA Copilot. I have audited your uploaded session cache documents. What would you like to review?" 
+      text: "Namaste! I am your AI TaxRecon Auditor Copilot. I have audited your uploaded session cache documents. What would you like to review?" 
     }
   ]);
 
@@ -264,7 +264,7 @@ export default function AuditFindings({
           
           {/* Permanent Disclaimer */}
           <div className="chat-disclaimer">
-            <strong>⚠️ Cautionary Disclaimer:</strong> This Virtual CA assistant provides compliance checking. Final tax filing validation should be executed by a qualified Chartered Accountant (CA).
+            <strong>⚠️ Cautionary Disclaimer:</strong> This TaxRecon Auditor assistant provides compliance checking. Final tax filing validation should be executed by a qualified Chartered Accountant (CA).
           </div>
         </div>
 
