@@ -29,7 +29,13 @@ The local deterministic rule engine coupled with AI reasoning models audits spec
 
 ## 🎨 High-End Visual UX & Core Modules
 
-The web app is styled using a premium, responsive **Vanilla CSS HSL System** featuring a seamless light/dark mode switch:
+The web app is styled using a premium, responsive **Vanilla CSS HSL System** featuring a seamless light/dark mode switch and high-performance **Premium Micro-Animations**:
+* **Landing Page Elements (`animate-fade-in-up`):** Cascades landing brand banners, core modules, action controls, and session registries smoothly from the bottom on render.
+* **Springy Modal Entrances (`animate-scale-up`):** Welcomes users with springy modal entrances on the onboarding consent gate, Clerk credentials simulator, and lock-sharing popup.
+* **Audit Findings Copilot Drawer (`animate-slide-in-right`):** Slides the chatbot panel cleanly from the right margin when opening the audit review workspace.
+* **OCR Scanned Coords (`animate-pulse-glow`):** Adds a subtle, recurring orange pulse to bounding coordinates on loaded tax sheets to highlight scanned fields.
+
+### Core Modules:
 1. **Interactive Dashboard:** Offers a radial compliance score dial and high-level alert rings.
 2. **Finance dropzone:** Multi-file drag-and-drop simulator with data consent gates and one-click demo audit loaders.
 3. **Audit Findings Inspector:** Expanding detailed drawers for observation, CA regulatory explanation, numerical variance grids, and actionable corrections.
