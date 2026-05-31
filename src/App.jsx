@@ -19,7 +19,8 @@ import {
   FolderOpen,
   History,
   Trash2,
-  Play
+  Play,
+  LockKeyhole
 } from 'lucide-react';
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
   const [findings, setFindings] = useState([]);
   const [activeSession, setActiveSession] = useState(null);
   const [savedSessions, setSavedSessions] = useState([]);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   
   const [checklist, setChecklist] = useState({
     panAadhaarLinked: false,
@@ -86,7 +88,15 @@ export default function App() {
 
   useEffect(() => {
     loadSavedSessions();
+    const consent = localStorage.getItem("VCA_PRIVACY_CONSENT") === "true";
+    setPrivacyAccepted(consent);
   }, [activeTab, showCloseModal]);
+
+  const handleAcceptPrivacy = () => {
+    localStorage.setItem("VCA_PRIVACY_CONSENT", "true");
+    setPrivacyAccepted(true);
+    logEvent("Privacy Consent Accepted", "User accepted 100% browser-local financial data auditing protocols.");
+  };
 
   // Close & Lock Session (Erase Active Workspace, Encrypt & Cache under Consultation ID)
   const handleCloseSession = () => {
@@ -334,7 +344,7 @@ export default function App() {
 
             </div>
 
-            {/* Historical Sessions Registry Section (GORGEOUS UX UPGRADE) */}
+            {/* Historical Sessions Registry Section */}
             <div className="card" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
                 <History size={20} style={{ color: 'var(--accent)' }} />
@@ -386,7 +396,7 @@ export default function App() {
                             if (match) executeRestore(match[1]);
                           }}
                           className="btn btn-primary"
-                          style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                          style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                         >
                           <Play size={10} />
                           <span>Quick Restore</span>
@@ -483,6 +493,69 @@ export default function App() {
         )}
 
       </main>
+
+      {/* Onboarding Security & Privacy Consent Modal (PROFOUND TRUST ARCHITECTURE) */}
+      {!privacyAccepted && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--bg-sidebar)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1rem' }}>
+          <div className="card" style={{ maxWidth: '520px', background: 'var(--bg-card)', padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', border: '1px solid var(--border-focus)' }}>
+            
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', borderBottom: '2px solid var(--accent)', paddingBottom: '0.75rem' }}>
+              <div style={{ background: 'var(--accent-glow)', padding: '0.5rem', borderRadius: '8px' }}>
+                <ShieldCheck size={24} style={{ color: 'var(--accent)' }} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.3rem', fontFamily: 'var(--font-head)', fontWeight: 800 }}>Security & Consent Protocol</h3>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Raman Tech Virtual CA
+                </span>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              Welcome to the **Virtual CA pre-filing auditing console**. Before initializing, please review our strict privacy, GDPR, and SFT data processing terms:
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}>
+              
+              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
+                <ShieldCheck size={16} style={{ color: 'var(--color-low)', flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <strong>100% On-Device Sandboxing:</strong> All financial statements, scanned invoices, and ledger CSVs are matched and evaluated locally in your browser's persistent cache.
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
+                <LockKeyhole size={16} style={{ color: 'var(--color-low)', flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <strong>Zero Server Retention:</strong> No documents or extracted parameters leave this machine or are logged on remote central databases.
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
+                <Scale size={16} style={{ color: 'var(--color-low)', flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <strong>Compliance Checklist matching:</strong> Mismatches (such as Section 199 TDS discrepancies) and daily cash limits checks run locally inside browser Javascript layers.
+                </div>
+              </div>
+
+            </div>
+
+            <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', background: 'var(--bg-primary)', padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border)', lineHeight: 1.4 }}>
+              <strong>⚠️ Legal Notice:</strong> virtual CA provides automated auditing. Under regulatory guidelines, final returns filing authorization must be reviewed and signed off by a certified Chartered Accountant (CA).
+            </p>
+
+            <button 
+              onClick={handleAcceptPrivacy}
+              className="btn btn-primary"
+              style={{ width: '100%', padding: '0.85rem', fontSize: '0.9rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 4px 12px var(--accent-glow)' }}
+            >
+              <CheckCircle size={18} />
+              <span>Authorize & Launch Auditing Console</span>
+            </button>
+
+          </div>
+        </div>
+      )}
 
       {/* Consultation ID Sharing Modal */}
       {showCloseModal && (
