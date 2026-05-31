@@ -569,9 +569,9 @@ export default function App() {
               </div>
 
               {/* Bottom Copyright & Disclaimer */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.25rem', fontSize: '0.72rem', color: 'var(--text-secondary)', flexWrap: 'wrap', gap: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.25rem', fontSize: '0.72rem', color: 'var(--text-secondary)', gap: '0.6rem', width: '100%' }}>
                 <span>© {new Date().getFullYear()} Ramanuja Pathy. All Rights Reserved. Designed & Maintained by Ramanuja Pathy.</span>
-                <span style={{ maxWidth: '480px', textAlign: 'right', lineHeight: 1.3 }}>
+                <span style={{ maxWidth: '720px', textAlign: 'center', lineHeight: 1.45 }}>
                   Disclaimer: Virtual CA provides client-side pre-audit. licensed Chartered Accountants must verify and authorize all filings under regulatory codes.
                 </span>
               </div>
