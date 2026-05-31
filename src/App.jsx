@@ -20,7 +20,11 @@ import {
   History,
   Trash2,
   Play,
-  LockKeyhole
+  LockKeyhole,
+  User,
+  LogOut,
+  Mail,
+  UserCheck
 } from 'lucide-react';
 
 export default function App() {
@@ -31,6 +35,15 @@ export default function App() {
   const [savedSessions, setSavedSessions] = useState([]);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   
+  // Auth Portal State
+  const [userProfile, setUserProfile] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authTab, setAuthTab] = useState('signin');
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authName, setAuthName] = useState("");
+  const [authenticating, setAuthenticating] = useState(false);
+
   const [checklist, setChecklist] = useState({
     panAadhaarLinked: false,
     deductionsVerified: false,
@@ -90,12 +103,81 @@ export default function App() {
     loadSavedSessions();
     const consent = localStorage.getItem("VCA_PRIVACY_CONSENT") === "true";
     setPrivacyAccepted(consent);
+    
+    // Check local auth token
+    const cachedProfile = localStorage.getItem("VCA_USER_PROFILE");
+    if (cachedProfile) {
+      const parsed = JSON.parse(cachedProfile);
+      setUserProfile(parsed);
+      setUserRole(parsed.role || 'individual');
+    }
   }, [activeTab, showCloseModal]);
 
   const handleAcceptPrivacy = () => {
     localStorage.setItem("VCA_PRIVACY_CONSENT", "true");
     setPrivacyAccepted(true);
     logEvent("Privacy Consent Accepted", "User accepted 100% browser-local financial data auditing protocols.");
+  };
+
+  // Auth Handlers
+  const handleLaunchWorkspace = () => {
+    if (!userProfile) {
+      setAuthTab('signin');
+      setShowAuthModal(true);
+    } else {
+      setActiveTab('upload');
+    }
+  };
+
+  const handleAuthSubmit = (e) => {
+    e.preventDefault();
+    if (!authEmail.trim() || !authPassword.trim()) {
+      alert("Please enter both email and password.");
+      return;
+    }
+    if (authTab === 'signup' && !authName.trim()) {
+      alert("Please enter your full name.");
+      return;
+    }
+
+    setAuthenticating(true);
+    
+    setTimeout(() => {
+      const profile = {
+        email: authEmail,
+        fullName: authTab === 'signup' ? authName : "Raman Kumar",
+        role: userRole,
+        authenticatedAt: new Date().toISOString()
+      };
+      
+      localStorage.setItem("VCA_USER_PROFILE", JSON.stringify(profile));
+      setUserProfile(profile);
+      setAuthenticating(false);
+      setShowAuthModal(false);
+      
+      // Clean inputs
+      setAuthEmail("");
+      setAuthPassword("");
+      setAuthName("");
+
+      logEvent("User Authenticated", `Secure profile loaded for ${profile.fullName} (${profile.role}).`);
+      setActiveTab('upload');
+    }, 1200);
+  };
+
+  const handleSignOut = () => {
+    if (window.confirm("Sign out and lock active workspace?")) {
+      localStorage.removeItem("VCA_USER_PROFILE");
+      setUserProfile(null);
+      
+      // Purge active workspace
+      setDocuments([]);
+      setFindings([]);
+      setActiveSession(null);
+      
+      logEvent("User Signed Out", "Profile cleared, active memory locked.");
+      setActiveTab('landing');
+    }
   };
 
   // Close & Lock Session (Erase Active Workspace, Encrypt & Cache under Consultation ID)
@@ -235,6 +317,39 @@ export default function App() {
         {activeTab === 'landing' && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', minHeight: '100%', maxWidth: '960px', margin: '0 auto', gap: '2.5rem', padding: '2rem 1rem 4rem 1rem' }}>
             
+            {/* Upper Action Header */}
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                Raman Tech Suite
+              </span>
+              {userProfile ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 600 }}>
+                    Welcome, {userProfile.fullName}
+                  </span>
+                  <button 
+                    onClick={handleSignOut}
+                    className="btn btn-secondary" 
+                    style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                  >
+                    <LogOut size={12} />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => {
+                    setAuthTab('signin');
+                    setShowAuthModal(true);
+                  }}
+                  className="btn btn-secondary"
+                  style={{ padding: '0.45rem 1rem', fontSize: '0.8rem', fontWeight: 600 }}
+                >
+                  Sign In
+                </button>
+              )}
+            </div>
+
             {/* Hero Brand Section */}
             <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
               <div 
@@ -308,7 +423,7 @@ export default function App() {
                   Enter our primary workspace to drag & drop files, load pre-configured India-focused audit packages, and generate print-friendly reports.
                 </p>
                 <button 
-                  onClick={() => setActiveTab('upload')}
+                  onClick={handleLaunchWorkspace}
                   className="btn btn-primary"
                   style={{ width: 'fit-content', display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.5rem' }}
                 >
@@ -494,7 +609,7 @@ export default function App() {
 
       </main>
 
-      {/* Onboarding Security & Privacy Consent Modal (PROFOUND TRUST ARCHITECTURE) */}
+      {/* Onboarding Security & Privacy Consent Modal */}
       {!privacyAccepted && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--bg-sidebar)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1rem' }}>
           <div className="card" style={{ maxWidth: '520px', background: 'var(--bg-card)', padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', border: '1px solid var(--border-focus)' }}>
@@ -554,6 +669,203 @@ export default function App() {
             </button>
 
           </div>
+        </div>
+      )}
+
+      {/* Secure Auth Simulation Dialog (Clerk/Auth0 Simulator) */}
+      {showAuthModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 180, padding: '1rem' }}>
+          <form 
+            onSubmit={handleAuthSubmit}
+            className="card" 
+            style={{ maxWidth: '440px', width: '100%', background: 'var(--bg-card)', padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
+          >
+            
+            {/* Header */}
+            <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
+              <div 
+                style={{ 
+                  background: 'var(--accent-glow)', 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '12px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  color: 'var(--accent)',
+                  marginBottom: '0.25rem'
+                }}
+              >
+                <LockKeyhole size={22} className={authenticating ? "animate-spin" : ""} />
+              </div>
+              <h3 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-head)', fontWeight: 800 }}>
+                {authTab === 'signin' ? 'Sign In to Secure CA Portal' : 'Create Secure CA Account'}
+              </h3>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                Powered by Clerk / Auth0 Encrypted Local Identity Token
+              </p>
+            </div>
+
+            {/* Tabs */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: 'var(--bg-primary)', padding: '0.25rem', borderRadius: '8px' }}>
+              <button 
+                type="button"
+                onClick={() => setAuthTab('signin')}
+                style={{ 
+                  background: authTab === 'signin' ? 'var(--bg-card)' : 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  padding: '0.4rem',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  borderRadius: '6px',
+                  color: authTab === 'signin' ? 'var(--accent)' : 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  transition: 'all var(--transition-fast)'
+                }}
+              >
+                Sign In
+              </button>
+              <button 
+                type="button"
+                onClick={() => setAuthTab('signup')}
+                style={{ 
+                  background: authTab === 'signup' ? 'var(--bg-card)' : 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  padding: '0.4rem',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  borderRadius: '6px',
+                  color: authTab === 'signup' ? 'var(--accent)' : 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  transition: 'all var(--transition-fast)'
+                }}
+              >
+                Sign Up
+              </button>
+            </div>
+
+            {/* Inputs */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', marginTop: '0.5rem' }}>
+              
+              {authTab === 'signup' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Full Name</label>
+                  <div style={{ position: 'relative' }}>
+                    <User size={14} style={{ position: 'absolute', left: '10px', top: '12px', color: 'var(--text-secondary)' }} />
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Raman Kumar" 
+                      value={authName}
+                      onChange={(e) => setAuthName(e.target.value)}
+                      className="form-input"
+                      style={{ paddingLeft: '32px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Email Address</label>
+                <div style={{ position: 'relative' }}>
+                  <Mail size={14} style={{ position: 'absolute', left: '10px', top: '12px', color: 'var(--text-secondary)' }} />
+                  <input 
+                    type="email" 
+                    placeholder="e.g. raman@tech.com" 
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    className="form-input"
+                    style={{ paddingLeft: '32px', fontSize: '0.82rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Password</label>
+                <div style={{ position: 'relative' }}>
+                  <LockKeyhole size={14} style={{ position: 'absolute', left: '10px', top: '12px', color: 'var(--text-secondary)' }} />
+                  <input 
+                    type="password" 
+                    placeholder="••••••••" 
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                    className="form-input"
+                    style={{ paddingLeft: '32px', fontSize: '0.82rem' }}
+                  />
+                </div>
+              </div>
+
+              {authTab === 'signup' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Audit Persona Role</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <UserCheck size={14} style={{ color: 'var(--accent)' }} />
+                    <select 
+                      value={userRole} 
+                      onChange={(e) => setUserRole(e.target.value)}
+                      className="form-input"
+                      style={{ fontSize: '0.82rem', padding: '0.45rem 0.75rem' }}
+                    >
+                      <option value="individual">Taxpayer (ITR-1/4)</option>
+                      <option value="sme">Small Business (SME)</option>
+                      <option value="ca">Chartered Accountant (CA)</option>
+                      <option value="accountant">Consultant / Accountant</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+            </div>
+
+            {/* Actions */}
+            <button 
+              type="submit"
+              disabled={authenticating}
+              className="btn btn-primary"
+              style={{ width: '100%', padding: '0.75rem', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}
+            >
+              {authenticating ? (
+                <>
+                  <RefreshCw size={14} className="animate-spin" />
+                  <span>Handshake authentication...</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={16} />
+                  <span>{authTab === 'signin' ? 'Authorize & Enter Portal' : 'Create & Register Profile'}</span>
+                </>
+              )}
+            </button>
+
+            {/* Bottom Link */}
+            <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+              {authTab === 'signin' ? (
+                <span>
+                  New to Raman Tech?{' '}
+                  <button 
+                    type="button" 
+                    onClick={() => setAuthTab('signup')}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--accent)', fontWeight: 600, cursor: 'pointer', padding: 0 }}
+                  >
+                    Create Account
+                  </button>
+                </span>
+              ) : (
+                <span>
+                  Already have an account?{' '}
+                  <button 
+                    type="button" 
+                    onClick={() => setAuthTab('signin')}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--accent)', fontWeight: 600, cursor: 'pointer', padding: 0 }}
+                  >
+                    Sign In
+                  </button>
+                </span>
+              )}
+            </div>
+
+          </form>
         </div>
       )}
 
