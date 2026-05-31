@@ -24,7 +24,9 @@ import {
   User,
   LogOut,
   Mail,
-  UserCheck
+  UserCheck,
+  Phone,
+  MapPin
 } from 'lucide-react';
 
 export default function App() {
@@ -529,6 +531,72 @@ export default function App() {
                 </div>
               )}
             </div>
+
+            {/* Premium Corporate Footer */}
+            <footer className="animate-fade-in-up" style={{ width: '100%', borderTop: '1px solid var(--border)', paddingTop: '2.5rem', marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem', width: '100%' }}>
+                
+                {/* Column 1: Brand & Purpose */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', fontWeight: 800, fontSize: '1.05rem', fontFamily: 'var(--font-head)' }}>
+                    <div style={{ background: 'var(--accent-glow)', padding: '0.35rem', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Scale size={16} style={{ color: 'var(--accent)' }} />
+                    </div>
+                    <span>Virtual CA Auditor</span>
+                  </div>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                    An intelligent corporate auditor by Raman Tech. Audits private tax returns, GST ledgers, and bank statements entirely on-device inside your browser local cache.
+                  </p>
+                  <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', fontSize: '0.72rem', color: 'var(--color-low)', fontWeight: 600 }}>
+                    <ShieldCheck size={13} />
+                    <span>Zero-Database Sandbox Verified</span>
+                  </div>
+                </div>
+
+                {/* Column 2: Contact Desk */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                  <h4 style={{ fontSize: '0.88rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-primary)' }}>
+                    Corporate Support Desk
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                      <MapPin size={14} style={{ color: 'var(--accent)', flexShrink: 0, marginTop: '2px' }} />
+                      <span>12th Floor, Cyber Towers, Hitec City, Hyderabad, India - 500081</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <Mail size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                      <a href="mailto:support@ramantech.com" style={{ color: 'var(--accent)', fontWeight: 500 }}>support@ramantech.com</a>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <Phone size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                      <span>+91 40 4918 2026 (Mon-Sat, 9AM - 6PM)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Column 3: Audit Compliance Coverage */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                  <h4 style={{ fontSize: '0.88rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-primary)' }}>
+                    Filing Standards Coverage
+                  </h4>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                    Deterministic rule assertions configured for Section 192 (Salary), Section 199 (TDS credit matching), Section 43B(h) (MSME Dues), Section 40A(3) (Cash Limit disallowances), and GST CGST Act Section 16 (ITC).
+                  </p>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: '4px', padding: '0.35rem 0.5rem' }}>
+                    <strong>AY 2026-27 Automated Rules Engine</strong>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Bottom Copyright & Disclaimer */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.25rem', fontSize: '0.72rem', color: 'var(--text-secondary)', flexWrap: 'wrap', gap: '1rem' }}>
+                <span>© {new Date().getFullYear()} Raman Kumar. All Rights Reserved. Raman Tech Suite.</span>
+                <span style={{ maxWidth: '480px', textAlign: 'right', lineHeight: 1.3 }}>
+                  Disclaimer: Virtual CA provides client-side pre-audit. licensed Chartered Accountants must verify and authorize all filings under regulatory codes.
+                </span>
+              </div>
+            </footer>
 
           </div>
         )}
