@@ -16,7 +16,10 @@ import {
   Search,
   CheckCircle,
   FileCheck2,
-  FolderOpen
+  FolderOpen,
+  History,
+  Trash2,
+  Play
 } from 'lucide-react';
 
 export default function App() {
@@ -24,6 +27,7 @@ export default function App() {
   const [documents, setDocuments] = useState([]);
   const [findings, setFindings] = useState([]);
   const [activeSession, setActiveSession] = useState(null);
+  const [savedSessions, setSavedSessions] = useState([]);
   
   const [checklist, setChecklist] = useState({
     panAadhaarLinked: false,
@@ -62,6 +66,27 @@ export default function App() {
     };
     setAuditLogs(prev => [newLog, ...prev]);
   };
+
+  // Load Saved Sessions from localStorage
+  const loadSavedSessions = () => {
+    try {
+      const index = JSON.parse(localStorage.getItem("VCA_SESSION_INDEX") || "[]");
+      const sessions = [];
+      index.forEach(shortId => {
+        const data = localStorage.getItem(`VCA_SESSION_${shortId}`);
+        if (data) {
+          sessions.push(JSON.parse(data));
+        }
+      });
+      setSavedSessions(sessions);
+    } catch (e) {
+      console.error("Failed to load saved sessions index", e);
+    }
+  };
+
+  useEffect(() => {
+    loadSavedSessions();
+  }, [activeTab, showCloseModal]);
 
   // Close & Lock Session (Erase Active Workspace, Encrypt & Cache under Consultation ID)
   const handleCloseSession = () => {
@@ -121,13 +146,17 @@ export default function App() {
 
   // Restore Session via Consultation ID
   const handleRestoreSession = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!restoreInput.trim()) return;
 
     // Parse out the short 4-character ID (RT-VCA-2026-XXXX)
     const match = restoreInput.match(/RT-VCA-2026-([A-F0-9]{4})/i);
     const shortId = match ? match[1].toUpperCase() : restoreInput.trim().toUpperCase();
 
+    executeRestore(shortId);
+  };
+
+  const executeRestore = (shortId) => {
     const cachedData = localStorage.getItem(`VCA_SESSION_${shortId}`);
     
     if (cachedData) {
@@ -152,9 +181,25 @@ export default function App() {
       logEvent("Session Restored", `Restored session ${payload.consultationId} from browser local cache.`);
       setRestoreInput("");
       setActiveTab('dashboard');
-      alert(`Success! Session ${payload.consultationId} successfully restored from local cache.`);
     } else {
-      alert("No active session found matching that Consultation ID in this browser's secure cache. (Session might have been auto-shredded or index cleared).");
+      alert("No active session found matching that Consultation ID in this browser's secure cache.");
+    }
+  };
+
+  const handleDeleteSavedSession = (consultationId) => {
+    const match = consultationId.match(/RT-VCA-2026-([A-F0-9]{4})/i);
+    if (!match) return;
+    const shortId = match[1];
+
+    if (window.confirm(`Delete saved session key ${consultationId} from local cache?`)) {
+      localStorage.removeItem(`VCA_SESSION_${shortId}`);
+      
+      let index = JSON.parse(localStorage.getItem("VCA_SESSION_INDEX") || "[]");
+      index = index.filter(id => id !== shortId);
+      localStorage.setItem("VCA_SESSION_INDEX", JSON.stringify(index));
+      
+      logEvent("Session Key Purged", `Deleted session ${consultationId} from local index.`);
+      loadSavedSessions();
     }
   };
 
@@ -178,7 +223,7 @@ export default function App() {
         
         {/* Landing / Welcome Screen */}
         {activeTab === 'landing' && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', maxWidth: '960px', margin: 'auto', gap: '3rem', padding: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', maxWidth: '960px', margin: 'auto', gap: '2.5rem', padding: '1rem' }}>
             
             {/* Hero Brand Section */}
             <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
@@ -244,7 +289,7 @@ export default function App() {
             </div>
 
             {/* Workspace Navigation & Session Restore Panel */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem', width: '100%', borderTop: '1px solid var(--border)', paddingTop: '2.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem', width: '100%', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
               
               {/* Left Action Box: Enter Workspace */}
               <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', justifyContent: 'center' }}>
@@ -287,6 +332,77 @@ export default function App() {
                 </form>
               </div>
 
+            </div>
+
+            {/* Historical Sessions Registry Section (GORGEOUS UX UPGRADE) */}
+            <div className="card" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
+                <History size={20} style={{ color: 'var(--accent)' }} />
+                <h3 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-head)' }}>Browser-Local Consultation Registry</h3>
+              </div>
+
+              {savedSessions.length === 0 ? (
+                <div style={{ padding: '2rem 1rem', text: 'center', color: 'var(--text-secondary)', fontSize: '0.82rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                  <Lock size={24} style={{ opacity: 0.5 }} />
+                  <p>No locked sessions indexed in this browser cache yet.</p>
+                  <p style={{ fontSize: '0.75rem' }}>Complete an audit and click 'Close & Lock Session' in the sidebar to populate this registry.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {savedSessions.map((session) => (
+                    <div 
+                      key={session.consultationId}
+                      style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center', 
+                        padding: '0.8rem 1rem', 
+                        border: '1px solid var(--border)', 
+                        borderRadius: '8px', 
+                        background: 'var(--bg-primary)' 
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent)', fontSize: '0.88rem' }}>
+                            {session.consultationId}
+                          </span>
+                          <span className="badge badge-low" style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem' }}>
+                            Role: {session.userRole}
+                          </span>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: session.overallScore >= 85 ? 'var(--color-low)' : session.overallScore >= 60 ? 'var(--color-medium)' : 'var(--color-critical)' }}>
+                            Score: {session.overallScore}%
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                          Package: <strong>{session.sessionName}</strong> • Files: {session.documents.length} • Findings: {session.findings.length}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button 
+                          onClick={() => {
+                            const match = session.consultationId.match(/RT-VCA-2026-([A-F0-9]{4})/i);
+                            if (match) executeRestore(match[1]);
+                          }}
+                          className="btn btn-primary"
+                          style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                        >
+                          <Play size={10} />
+                          <span>Quick Restore</span>
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteSavedSession(session.consultationId)}
+                          className="btn btn-secondary"
+                          style={{ padding: '0.4rem 0.5rem', fontSize: '0.75rem', color: 'var(--color-critical)', borderColor: 'var(--color-critical-border)' }}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
           </div>
