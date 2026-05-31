@@ -46,7 +46,7 @@ export default function Dashboard({
   // Persona-specific titles & configurations
   const personaConfigurations = {
     individual: {
-      subHeader: "Individual Taxpayer Portal — Raman Kumar (Smart Pre-Filing)",
+      subHeader: "Individual Taxpayer Portal — Ramanuja Pathy (RAMAN) (Smart Pre-Filing)",
       metric1Label: "Tax Credit (TDS) Alignment",
       metric1Value: activeSession ? "₹1,65,000 credited" : "No active filings",
       metric2Label: "Chapter VI-A Claims",
@@ -114,7 +114,7 @@ export default function Dashboard({
       )
     },
     ca: {
-      subHeader: "CA Professional Client Workspace — CA Raman Kumar (Enterprise Console)",
+      subHeader: "CA Professional Workspace — CA Ramanuja Pathy (RAMAN) (Enterprise Console)",
       metric1Label: "Critical Risk Vectors",
       metric1Value: activeSession ? "Unexplained deposits + Smurfing" : "Clean risk index",
       metric2Label: "Client Form 3CD Compliance",

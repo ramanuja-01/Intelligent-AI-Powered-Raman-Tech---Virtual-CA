@@ -456,7 +456,7 @@ export default function UploadWorkspace({
                         <strong>TAN of Employer:</strong> <span style={{ opacity: 0.6 }}>MUMT01928E</span>
                       </div>
                       <div>
-                        <strong>Employee Name:</strong> Raman Kumar <br />
+                        <strong>Employee Name:</strong> Ramanuja Pathy (RAMAN) <br />
                         <strong>PAN of Employee:</strong> <span style={{ opacity: 0.6 }}>BHUPR1982M</span>
                       </div>
                     </div>

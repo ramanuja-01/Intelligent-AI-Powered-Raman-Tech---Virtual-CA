@@ -147,7 +147,7 @@ export default function App() {
     setTimeout(() => {
       const profile = {
         email: authEmail,
-        fullName: authTab === 'signup' ? authName : "Raman Kumar",
+        fullName: authTab === 'signup' ? authName : "Ramanuja Pathy (RAMAN)",
         role: userRole,
         authenticatedAt: new Date().toISOString()
       };
@@ -591,7 +591,7 @@ export default function App() {
 
               {/* Bottom Copyright & Disclaimer */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.25rem', fontSize: '0.72rem', color: 'var(--text-secondary)', flexWrap: 'wrap', gap: '1rem' }}>
-                <span>© {new Date().getFullYear()} Raman Kumar. All Rights Reserved. Raman Tech Suite.</span>
+                <span>© {new Date().getFullYear()} Ramanuja Pathy (RAMAN). All Rights Reserved. Designed & Maintained by Ramanuja Pathy (RAMAN).</span>
                 <span style={{ maxWidth: '480px', textAlign: 'right', lineHeight: 1.3 }}>
                   Disclaimer: Virtual CA provides client-side pre-audit. licensed Chartered Accountants must verify and authorize all filings under regulatory codes.
                 </span>
@@ -824,7 +824,7 @@ export default function App() {
                     <User size={14} style={{ position: 'absolute', left: '10px', top: '12px', color: 'var(--text-secondary)' }} />
                     <input 
                       type="text" 
-                      placeholder="e.g. Raman Kumar" 
+                      placeholder="e.g. Ramanuja Pathy (RAMAN)" 
                       value={authName}
                       onChange={(e) => setAuthName(e.target.value)}
                       className="form-input"
