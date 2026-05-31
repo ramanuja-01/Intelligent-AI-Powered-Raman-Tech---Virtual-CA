@@ -241,7 +241,7 @@ export default function AuditFindings({
       </div>
 
       {/* Right Column: Embedded Chat Assistant */}
-      <div className="card chat-drawer no-print" style={{ borderRadius: 'var(--radius-md)', padding: 0 }}>
+      <div className="card chat-drawer no-print animate-slide-in-right" style={{ borderRadius: 'var(--radius-md)', padding: 0 }}>
         
         {/* Chat Header */}
         <div className="chat-header">

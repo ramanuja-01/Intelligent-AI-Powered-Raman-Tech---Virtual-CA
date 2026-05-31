@@ -351,7 +351,7 @@ export default function App() {
             </div>
 
             {/* Hero Brand Section */}
-            <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+            <div className="animate-fade-in-up" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
               <div 
                 style={{ 
                   background: 'linear-gradient(135deg, var(--accent) 0%, #1e40af 100%)', 
@@ -376,7 +376,7 @@ export default function App() {
             </div>
 
             {/* Core Modules Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem', width: '100%' }}>
+            <div className="animate-fade-in-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem', width: '100%' }}>
               
               {/* Feature 1 */}
               <div className="card" style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
@@ -414,7 +414,7 @@ export default function App() {
             </div>
 
             {/* Workspace Navigation & Session Restore Panel */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem', width: '100%', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
+            <div className="animate-fade-in-up" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem', width: '100%', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
               
               {/* Left Action Box: Enter Workspace */}
               <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', justifyContent: 'center' }}>
@@ -460,7 +460,7 @@ export default function App() {
             </div>
 
             {/* Historical Sessions Registry Section */}
-            <div className="card" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div className="card animate-fade-in-up" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
                 <History size={20} style={{ color: 'var(--accent)' }} />
                 <h3 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-head)' }}>Browser-Local Consultation Registry</h3>
@@ -612,7 +612,7 @@ export default function App() {
       {/* Onboarding Security & Privacy Consent Modal */}
       {!privacyAccepted && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--bg-sidebar)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1rem' }}>
-          <div className="card" style={{ maxWidth: '520px', background: 'var(--bg-card)', padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', border: '1px solid var(--border-focus)' }}>
+          <div className="card animate-scale-up" style={{ maxWidth: '520px', background: 'var(--bg-card)', padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', border: '1px solid var(--border-focus)' }}>
             
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', borderBottom: '2px solid var(--accent)', paddingBottom: '0.75rem' }}>
               <div style={{ background: 'var(--accent-glow)', padding: '0.5rem', borderRadius: '8px' }}>
@@ -677,7 +677,7 @@ export default function App() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 180, padding: '1rem' }}>
           <form 
             onSubmit={handleAuthSubmit}
-            className="card" 
+            className="card animate-scale-up" 
             style={{ maxWidth: '440px', width: '100%', background: 'var(--bg-card)', padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
           >
             
@@ -872,7 +872,7 @@ export default function App() {
       {/* Consultation ID Sharing Modal */}
       {showCloseModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justify: 'center', zIndex: 100 }}>
-          <div className="card" style={{ maxWidth: '440px', background: 'var(--bg-card)', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', textAlign: 'center', margin: 'auto' }}>
+          <div className="card animate-scale-up" style={{ maxWidth: '440px', background: 'var(--bg-card)', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', textAlign: 'center', margin: 'auto' }}>
             <div 
               style={{ 
                 background: 'var(--accent-glow)', 

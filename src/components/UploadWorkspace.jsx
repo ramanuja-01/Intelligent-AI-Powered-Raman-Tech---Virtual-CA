@@ -425,6 +425,7 @@ export default function UploadWorkspace({
                     key={box.id}
                     onMouseEnter={() => setHoveredField(box)}
                     onMouseLeave={() => setHoveredField(null)}
+                    className="animate-pulse-glow"
                     style={{ 
                       position: 'absolute',
                       top: box.top,
