@@ -26,7 +26,7 @@ export default function ReportExport({
   const other = findings.filter(f => f.severity === 'medium' || f.severity === 'low').length;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
       {/* Page Title & Action Header (no-print) */}
       <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

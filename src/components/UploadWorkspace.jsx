@@ -152,7 +152,7 @@ export default function UploadWorkspace({
   const activeBoxes = currentDoc ? getBoundingBoxes(currentDoc.type) : [];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
       {/* Page Title */}
       <div>

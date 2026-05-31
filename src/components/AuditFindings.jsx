@@ -98,7 +98,7 @@ export default function AuditFindings({
   };
 
   return (
-    <div style={{ display: 'flex', gap: '1.5rem', height: 'calc(100vh - 180px)', overflow: 'hidden' }}>
+    <div className="animate-fade-in-up" style={{ display: 'flex', gap: '1.5rem', height: 'calc(100vh - 180px)', overflow: 'hidden' }}>
       
       {/* Left Column: Audit Findings List */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto', paddingRight: '0.5rem' }}>

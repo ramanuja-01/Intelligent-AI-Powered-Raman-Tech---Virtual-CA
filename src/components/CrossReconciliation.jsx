@@ -14,7 +14,7 @@ export default function CrossReconciliation({
   const recon = activeSession?.reconciliationData;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
       {/* Page Title */}
       <div>
