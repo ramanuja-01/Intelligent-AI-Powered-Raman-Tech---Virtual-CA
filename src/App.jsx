@@ -534,7 +534,7 @@ export default function App() {
 
             {/* Premium Corporate Footer */}
             <footer className="animate-fade-in-up" style={{ width: '100%', borderTop: '1px solid var(--border)', paddingTop: '2.5rem', marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem', width: '100%' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem', width: '100%' }}>
                 
                 {/* Column 1: Brand & Purpose */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
@@ -553,28 +553,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Column 2: Contact Desk */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                  <h4 style={{ fontSize: '0.88rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-primary)' }}>
-                    Corporate Support Desk
-                  </h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                      <MapPin size={14} style={{ color: 'var(--accent)', flexShrink: 0, marginTop: '2px' }} />
-                      <span>12th Floor, Cyber Towers, Hitec City, Hyderabad, India - 500081</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <Mail size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />
-                      <a href="mailto:support@ramantech.com" style={{ color: 'var(--accent)', fontWeight: 500 }}>support@ramantech.com</a>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <Phone size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />
-                      <span>+91 40 4918 2026 (Mon-Sat, 9AM - 6PM)</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Column 3: Audit Compliance Coverage */}
+                {/* Column 2: Audit Compliance Coverage */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   <h4 style={{ fontSize: '0.88rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-primary)' }}>
                     Filing Standards Coverage
@@ -591,7 +570,7 @@ export default function App() {
 
               {/* Bottom Copyright & Disclaimer */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.25rem', fontSize: '0.72rem', color: 'var(--text-secondary)', flexWrap: 'wrap', gap: '1rem' }}>
-                <span>© {new Date().getFullYear()} Ramanuja Pathy (RAMAN). All Rights Reserved. Designed & Maintained by Ramanuja Pathy (RAMAN).</span>
+                <span>© {new Date().getFullYear()} Ramanuja Pathy. All Rights Reserved. Designed & Maintained by Ramanuja Pathy.</span>
                 <span style={{ maxWidth: '480px', textAlign: 'right', lineHeight: 1.3 }}>
                   Disclaimer: Virtual CA provides client-side pre-audit. licensed Chartered Accountants must verify and authorize all filings under regulatory codes.
                 </span>
