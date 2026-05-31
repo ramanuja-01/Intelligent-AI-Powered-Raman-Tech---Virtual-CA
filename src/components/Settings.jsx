@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Settings as SettingsIcon, 
   Trash2, 
@@ -7,8 +7,19 @@ import {
   CheckCircle,
   FileCheck2,
   Moon,
-  Sun
+  Sun,
+  Play,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
+import { 
+  auditTdsCredit, 
+  auditGrossSalary, 
+  auditGstItcExpensing, 
+  auditCashPaymentsLimit, 
+  auditMsmePayments, 
+  auditCashStructuring 
+} from '../utils/auditRuleEngine';
 
 export default function Settings({ 
   auditLogs, 
@@ -20,6 +31,7 @@ export default function Settings({
   setFindings,
   setActiveSession
 }) {
+  const [testResults, setTestResults] = useState(null);
 
   const handleClearLogs = () => {
     setAuditLogs([
@@ -29,6 +41,87 @@ export default function Settings({
         details: "Chronological audit logs index was purged by user."
       }
     ]);
+  };
+
+  const runTestSuite = () => {
+    const results = [];
+
+    // Test 1: TDS Mismatch (Sec 199)
+    const tdsFinding = auditTdsCredit(185000, 165000);
+    results.push({
+      id: "t1",
+      name: "Section 199 - TDS Credit Variance",
+      input: "Claim: ₹1.85L | 26AS: ₹1.65L",
+      outcome: tdsFinding ? `Caught shortfall of ₹${tdsFinding.amountMismatch.difference.toLocaleString('en-IN')}` : "Failed to detect mismatch",
+      status: tdsFinding && tdsFinding.severity === "critical" ? "PASS" : "FAIL"
+    });
+
+    // Test 2: Gross Salary Omission (Sec 192)
+    const salaryFinding = auditGrossSalary(1850000, 2050000);
+    results.push({
+      id: "t2",
+      name: "Section 192 - Gross Income Omission",
+      input: "Reported: ₹18.5L | AIS: ₹20.5L",
+      outcome: salaryFinding ? `Identified omission of ₹${salaryFinding.amountMismatch.difference.toLocaleString('en-IN')}` : "Failed to detect omission",
+      status: salaryFinding && salaryFinding.severity === "high" ? "PASS" : "FAIL"
+    });
+
+    // Test 3: GST ITC Expensing (CGST Act Sec 16)
+    const gstFinding = auditGstItcExpensing(500000, 90000, 590000);
+    results.push({
+      id: "t3",
+      name: "GST Sec 16 - Input Tax Expensing Check",
+      input: "Base: ₹5L, GST: ₹90K | Books Expense: ₹5.9L",
+      outcome: gstFinding ? `Flagged unclaimed asset of ₹${gstFinding.amountMismatch.difference.toLocaleString('en-IN')}` : "Failed to detect expensing error",
+      status: gstFinding && gstFinding.severity === "critical" ? "PASS" : "FAIL"
+    });
+
+    // Test 4: Section 40A(3) Cash Wage caps
+    const samplePayments = [
+      { person: "Ram Lal", amount: 6000, date: "2026-05-12" },
+      { person: "Ram Lal", amount: 8000, date: "2026-05-12" } // Total 14000 (violation)
+    ];
+    const cashViolations = auditCashPaymentsLimit(samplePayments);
+    results.push({
+      id: "t4",
+      name: "Section 40A(3) - Daily Cash Payments Cap",
+      input: "Aggregate Ram Lal (12th May): ₹14K cash",
+      outcome: cashViolations.length > 0 ? `Detected daily aggregate violation: ₹${cashViolations[0].amountMismatch.actual.toLocaleString('en-IN')}` : "Failed to detect limit violation",
+      status: cashViolations.length > 0 ? "PASS" : "FAIL"
+    });
+
+    // Test 5: Section 43B(h) MSME limits
+    const sampleLiabilities = [
+      { vendor: "Gopal Steel castings", amount: 150000, daysOutstanding: 60 }
+    ];
+    const msmeViolations = auditMsmePayments(sampleLiabilities);
+    results.push({
+      id: "t5",
+      name: "Section 43B(h) - MSME Overdue Liabilities",
+      input: "Payable: ₹1.5L | Age: 60 days",
+      outcome: msmeViolations.length > 0 ? `Flagged overdue liability disallowance.` : "Failed to flag aging overdue",
+      status: msmeViolations.length > 0 ? "PASS" : "FAIL"
+    });
+
+    // Test 6: SFT Structuring threshold (Sec 285BA)
+    const structFinding = auditCashStructuring([490000, 490000, 490000, 490000]);
+    results.push({
+      id: "t6",
+      name: "Section 285BA - Structured Cash Deposits",
+      input: "Deposits: 4x ₹4.9L in bank account",
+      outcome: structFinding ? "Correctly flagged smurfing reporting hazard." : "Failed to detect structuring",
+      status: structFinding ? "PASS" : "FAIL"
+    });
+
+    setTestResults(results);
+    
+    // Log to settings audit trail
+    const newLog = {
+      timestamp: new Date().toISOString(),
+      action: "Test Suite Diagnostic Executed",
+      details: `Ran ${results.length} deterministic rules assertions. Outcome: ${results.filter(r => r.status === "PASS").length} passed.`
+    };
+    setAuditLogs(prev => [newLog, ...prev]);
   };
 
   const handleWipeAllCache = () => {
@@ -120,6 +213,57 @@ export default function Settings({
                 )}
               </button>
             </div>
+          </div>
+
+          {/* Rules Engine Diagnostic Test Suite */}
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontFamily: 'var(--font-head)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <FileCheck2 size={18} style={{ color: 'var(--accent)' }} />
+              <span>Rules Engine Diagnostic Panel</span>
+            </h3>
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4, borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginTop: '-0.25rem' }}>
+              Runs live testing assertions of the local tax and compliance rules (Income Tax Act & GST codes) against validation datasets.
+            </p>
+
+            <button 
+              onClick={runTestSuite}
+              className="btn btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', alignSelf: 'flex-start', fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+            >
+              <Play size={14} />
+              <span>Run Rules Assertion Tests</span>
+            </button>
+
+            {testResults && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '0.5rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+                {testResults.map((t) => (
+                  <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.6rem', background: 'var(--bg-primary)', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.8rem' }}>
+                    <div>
+                      <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{t.name}</div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '0.1rem' }}>
+                        Input: {t.input} <br />
+                        Outcome: <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{t.outcome}</span>
+                      </div>
+                    </div>
+                    <span 
+                      className="badge" 
+                      style={{ 
+                        background: t.status === 'PASS' ? 'var(--color-low-bg)' : 'var(--color-critical-bg)', 
+                        color: t.status === 'PASS' ? 'var(--color-low)' : 'var(--color-critical)',
+                        borderColor: t.status === 'PASS' ? 'var(--color-low-border)' : 'var(--color-critical-border)',
+                        borderWidth: '1px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.2rem'
+                      }}
+                    >
+                      {t.status === 'PASS' ? <CheckCircle2 size={11} /> : <XCircle size={11} />}
+                      <span>{t.status}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Retention and Purge Policies */}
