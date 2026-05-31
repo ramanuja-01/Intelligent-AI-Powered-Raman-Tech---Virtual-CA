@@ -6,7 +6,11 @@ import {
   AlertTriangle, 
   ChevronRight, 
   Info,
-  TrendingUp
+  TrendingUp,
+  Coins,
+  CheckSquare,
+  Building,
+  UserCheck
 } from 'lucide-react';
 
 export default function Dashboard({ 
@@ -39,13 +43,141 @@ export default function Dashboard({
     scoreColorClass = "var(--color-medium)";
   }
 
-  // Persona titles
-  const personaTitles = {
-    individual: "Taxpayer Portal — Smart Pre-Filing",
-    sme: "SME Dashboard — Corporate Compliance",
-    ca: "Chartered Accountant Workspace — Deep Audit",
-    accountant: "Consultant Desk — Client Tax Review"
+  // Persona-specific titles & configurations
+  const personaConfigurations = {
+    individual: {
+      subHeader: "Individual Taxpayer Portal — Raman Kumar (Smart Pre-Filing)",
+      metric1Label: "Tax Credit (TDS) Alignment",
+      metric1Value: activeSession ? "₹1,65,000 credited" : "No active filings",
+      metric2Label: "Chapter VI-A Claims",
+      metric2Value: activeSession ? "₹2,00,000 claimed" : "₹0 claimed",
+      widgetTitle: "80C & 80D Tax Deduction Limits Monitor",
+      widgetBody: (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+              <span>Section 80C Limit (PPF, ELSS, EPF)</span>
+              <span>₹1,50,000 / ₹1,50,000 (100% Met)</span>
+            </div>
+            <div style={{ height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: '100%', background: 'var(--color-low)' }}></div>
+            </div>
+          </div>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+              <span>Section 80D Limit (Health Premium)</span>
+              <span style={{ color: 'var(--color-critical)' }}>₹50,000 / ₹25,000 (Overlimit Risk)</span>
+            </div>
+            <div style={{ height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: '100%', background: 'var(--color-critical)' }}></div>
+            </div>
+          </div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', background: 'var(--accent-glow)', padding: '0.5rem', borderRadius: '4px', display: 'flex', gap: '0.2rem', alignItems: 'center' }}>
+            <Info size={12} />
+            <span>Over-claiming 80D deductions raises notices risk on CPC automated returns checks.</span>
+          </div>
+        </div>
+      )
+    },
+    sme: {
+      subHeader: "SME Compliance Desk — Raman Tech Enterprises (Corporate Portal)",
+      metric1Label: "Unclaimed GST Input (ITC)",
+      metric1Value: activeSession ? "₹90,000 asset leakage" : "₹0 tracked",
+      metric2Label: "Section 43B(h) Payable Age",
+      metric2Value: activeSession ? " G Gopal steel (60 Days)" : "No outstanding payables",
+      widgetTitle: "MSME Payment & Cash Daily Limits Tracker",
+      widgetBody: (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+              <span>MSME payment cycle (Section 43B(h))</span>
+              <span style={{ color: 'var(--color-high)' }}>60 days overdue (₹1.5 Lakhs)</span>
+            </div>
+            <div style={{ height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ width: '80%', height: '100%', background: 'var(--color-high)' }}></div>
+            </div>
+          </div>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+              <span>Cash Payments Cap (Section 40A(3))</span>
+              <span style={{ color: 'var(--color-high)' }}>₹75,000 aggregate cash daily paid</span>
+            </div>
+            <div style={{ height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ width: '90%', height: '100%', background: 'var(--color-high)' }}></div>
+            </div>
+          </div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', background: 'var(--accent-glow)', padding: '0.5rem', borderRadius: '4px', display: 'flex', gap: '0.2rem', alignItems: 'center' }}>
+            <Info size={12} />
+            <span>Payments to MSMEs over 45 days and cash over ₹10k per person/day are directly disallowed in tax.</span>
+          </div>
+        </div>
+      )
+    },
+    ca: {
+      subHeader: "CA Professional Client Workspace — CA Raman Kumar (Enterprise Console)",
+      metric1Label: "Critical Risk Vectors",
+      metric1Value: activeSession ? "Unexplained deposits + Smurfing" : "Clean risk index",
+      metric2Label: "Client Form 3CD Compliance",
+      metric2Value: activeSession ? "Checks: 3 of 6 completed" : "0 checklist completed",
+      widgetTitle: "Professional Client Risk Coordinates Map Summary",
+      widgetBody: (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-primary)', padding: '0.5rem', borderRadius: '6px', fontSize: '0.78rem' }}>
+            <strong>Section 68 Round-tripping check</strong>
+            <span className="badge badge-critical">Critical</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-primary)', padding: '0.5rem', borderRadius: '6px', fontSize: '0.78rem' }}>
+            <strong>Section 285BA Structuring smurfing</strong>
+            <span className="badge badge-critical">Critical</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-primary)', padding: '0.5rem', borderRadius: '6px', fontSize: '0.78rem' }}>
+            <strong>Section 40A(3) Daily cash disallowance</strong>
+            <span className="badge badge-high">High</span>
+          </div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', background: 'var(--accent-glow)', padding: '0.4rem', borderRadius: '4px', display: 'flex', gap: '0.2rem', alignItems: 'center', marginTop: '0.2rem' }}>
+            <Info size={12} />
+            <span>Click the 'Risk Heatmap' tab in the left sidebar to plot coordinate exposure metrics.</span>
+          </div>
+        </div>
+      )
+    },
+    accountant: {
+      subHeader: "Consultant Desk — Raman Bookkeeping & Bank Ledger Audit",
+      metric1Label: "Voucher Match Completeness",
+      metric1Value: activeSession ? "120 book vouchers matching" : "0 vouchers audited",
+      metric2Label: "Interest Schedules Extracted",
+      metric2Value: activeSession ? "₹35,000 OS credits caught" : "₹0 savings interest",
+      widgetTitle: "Ledger Reconciliation & Match Indices",
+      widgetBody: (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+              <span>Bank Ledger match integrity</span>
+              <span>120 / 120 matching vouchers (100% complete)</span>
+            </div>
+            <div style={{ height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: '100%', background: 'var(--color-low)' }}></div>
+            </div>
+          </div>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+              <span>Duplicate vouchers flagged</span>
+              <span style={{ color: 'var(--color-high)' }}>INV-9281 posted twice (Variance ₹2.95L)</span>
+            </div>
+            <div style={{ height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ width: '80%', height: '100%', background: 'var(--color-high)' }}></div>
+            </div>
+          </div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', background: 'var(--accent-glow)', padding: '0.5rem', borderRadius: '4px', display: 'flex', gap: '0.2rem', alignItems: 'center' }}>
+            <Info size={12} />
+            <span>Verify duplicate ledger entries under Settings checklist logs panel.</span>
+          </div>
+        </div>
+      )
+    }
   };
+
+  const activeConf = personaConfigurations[userRole] || personaConfigurations.individual;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -56,7 +188,7 @@ export default function Dashboard({
             Intelligent AI Audit Console
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginTop: '0.2rem' }}>
-            {personaTitles[userRole] || personaTitles.individual}
+            {activeConf.subHeader}
           </p>
         </div>
         <div className="badge badge-low" style={{ padding: '0.4rem 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -131,24 +263,21 @@ export default function Dashboard({
           </button>
         </div>
 
-        {/* Metric 4: High & Medium Risk */}
+        {/* Metric 4: Personalized Secondary Indicator Card */}
         <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>High / Medium Alerts</span>
-              <h3 style={{ fontSize: '2rem', color: 'var(--color-high)', fontWeight: 800, marginTop: '0.2rem' }}>{highCount + otherCount}</h3>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>{activeConf.metric1Label}</span>
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, marginTop: '0.4rem', color: 'var(--text-primary)' }}>{activeConf.metric1Value}</h4>
             </div>
-            <div style={{ background: 'var(--color-high-bg)', padding: '0.5rem', borderRadius: '8px' }}>
-              <AlertTriangle size={24} style={{ color: 'var(--color-high)' }} />
+            <div style={{ background: 'var(--color-medium-bg)', padding: '0.5rem', borderRadius: '8px' }}>
+              <Coins size={24} style={{ color: 'var(--color-medium)' }} />
             </div>
           </div>
-          <button 
-            onClick={() => setActiveTab('heatmap')}
-            style={{ border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--color-high)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', padding: 0 }}
-          >
-            <span>Risk Analysis Map</span>
-            <ChevronRight size={14} />
-          </button>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', display: 'flex', gap: '0.2rem', alignItems: 'center' }}>
+            <span style={{ fontWeight: 600 }}>{activeConf.metric2Label}:</span>
+            <span>{activeConf.metric2Value}</span>
+          </div>
         </div>
       </div>
 
@@ -204,20 +333,15 @@ export default function Dashboard({
           )}
         </div>
 
-        {/* Column 2: Quick Information Card & Actions */}
+        {/* Column 2: Personalized Interactive Visualizer Panel & Actions */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {/* Privacy Trust Card */}
-          <div className="card" style={{ background: 'var(--accent-light)', borderColor: 'var(--border-focus)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <Info size={18} style={{ color: 'var(--accent)' }} />
-              <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>Zero Server Database Retention</h4>
-            </div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-              Intelligent Virtual CA runs fully serverless. Extracted records and tax parameters reside within your <strong>browser session cache</strong>. 
-            </p>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-              To clear active records from local memory, use the <strong>Close & Lock Session</strong> action. Save your <strong>Consultation ID</strong> to restore later.
-            </p>
+          
+          {/* Personalized visualizer widget */}
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <h4 style={{ fontSize: '1rem', fontWeight: 700, borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', fontFamily: 'var(--font-head)' }}>
+              {activeConf.widgetTitle}
+            </h4>
+            {activeConf.widgetBody}
           </div>
 
           {/* Quick Tools Checklist */}
