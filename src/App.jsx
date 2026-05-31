@@ -233,7 +233,7 @@ export default function App() {
         
         {/* Landing / Welcome Screen */}
         {activeTab === 'landing' && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', maxWidth: '960px', margin: 'auto', gap: '2.5rem', padding: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', minHeight: '100%', maxWidth: '960px', margin: '0 auto', gap: '2.5rem', padding: '2rem 1rem 4rem 1rem' }}>
             
             {/* Hero Brand Section */}
             <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
