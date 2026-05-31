@@ -1,11 +1,9 @@
 import React from 'react';
 import { 
-  FileDown, 
   Printer, 
   Sparkles, 
-  ShieldCheck, 
   CheckCircle,
-  FileCheck2
+  AlertTriangle
 } from 'lucide-react';
 
 export default function ReportExport({ 
@@ -20,6 +18,7 @@ export default function ReportExport({
   };
 
   const score = activeSession ? activeSession.overallScore : 100;
+  const recon = activeSession?.reconciliationData;
   
   // Severity counts
   const crit = findings.filter(f => f.severity === 'critical').length;
@@ -50,7 +49,7 @@ export default function ReportExport({
       </div>
 
       {/* Main Report Preview Page (Looks like a real corporate certificate) */}
-      <div className="card print-report-container" style={{ background: '#fff', color: '#1e293b', border: '1px solid var(--border)', padding: '3rem', fontFamily: 'var(--font-sans)', display: 'flex', flexDirection: 'column', gap: '2rem', boxShadow: 'var(--shadow-lg)' }}>
+      <div className="card print-report-container" style={{ background: '#fff', color: '#1e293b', border: '1px solid var(--border)', padding: '3rem', fontFamily: 'var(--font-sans)', display: 'flex', flexDirection: 'column', gap: '2.5rem', boxShadow: 'var(--shadow-lg)' }}>
         
         {/* Official Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #1e3a8a', paddingBottom: '1.5rem' }}>
@@ -139,10 +138,53 @@ export default function ReportExport({
           </table>
         </div>
 
+        {/* Income & Tax Credit Reconciliation Schedule (Added numerical values table) */}
+        {recon && (
+          <div style={{ pageBreakInside: 'avoid' }}>
+            <h2 style={{ fontSize: '1.25rem', color: '#1e3a8a', fontWeight: 700, fontFamily: 'var(--font-head)', marginBottom: '0.75rem' }}>
+              III. Income & Tax Credit Reconciliation Schedule
+            </h2>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+                  {recon.headers.map((h, idx) => (
+                    <th key={idx} style={{ padding: '0.6rem', color: '#475569', fontWeight: 600 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {recon.rows.map((row, idx) => (
+                  <tr 
+                    key={idx} 
+                    style={{ 
+                      borderBottom: '1px solid #e2e8f0',
+                      background: row.critical ? '#fff5f5' : 'transparent'
+                    }}
+                  >
+                    <td style={{ padding: '0.6rem', fontWeight: 600 }}>{row.label}</td>
+                    <td style={{ padding: '0.6rem', fontFamily: 'monospace' }}>
+                      {row.form16 !== 0 ? `₹${row.form16.toLocaleString('en-IN')}` : '—'}
+                    </td>
+                    <td style={{ padding: '0.6rem', fontFamily: 'monospace' }}>
+                      {row.ais !== 0 ? `₹${row.ais.toLocaleString('en-IN')}` : '—'}
+                    </td>
+                    <td style={{ padding: '0.6rem', fontFamily: 'monospace' }}>
+                      {row["26as"] !== undefined && row["26as"] !== 0 ? `₹${row["26as"].toLocaleString('en-IN')}` : '—'}
+                    </td>
+                    <td style={{ padding: '0.6rem', color: row.critical ? '#dc2626' : '#16a34a', fontWeight: 600 }}>
+                      {row.status}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
         {/* Itemized Audit Findings Block */}
         <div>
           <h2 style={{ fontSize: '1.25rem', color: '#1e3a8a', fontWeight: 700, fontFamily: 'var(--font-head)', marginBottom: '1rem' }}>
-            III. Detailed Compliance Findings & Correction Plan
+            IV. Detailed Compliance Findings & Correction Plan
           </h2>
 
           {findings.length === 0 ? (
