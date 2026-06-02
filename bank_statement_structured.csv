@@ -1,0 +1,50 @@
+Date,Description,Reference No.,Withdrawal (Debit),Deposit (Credit),Balance
+02-Apr-2025,Advisory Service Retainer,TXN685110,,75000.00,1325000.00
+03-Apr-2025,Stationery Purchases,TXN215415,4800.00,,1320200.00
+05-Apr-2025,Advisory Service Retainer,TXN694936,,75000.00,1395200.00
+07-Apr-2025,Broadband Internet Invoice,TXN121061,3200.00,,1392000.00
+09-Apr-2025,Office Rent Payment,TXN148706,45000.00,,1347000.00
+10-Apr-2025,Advisory Service Retainer,TXN829104,,75000.00,1422000.00
+12-Apr-2025,Electricity Board Utility,TXN786033,8500.00,,1413500.00
+14-Apr-2025,Advisory Service Retainer,TXN274479,,75000.00,1488500.00
+16-Apr-2025,Client Payment - INV-8230,TXN530441,,98000.00,1586500.00
+18-Apr-2025,Client Payment - INV-8230,TXN198133,,98000.00,1684500.00
+20-Apr-2025,Advisory Service Retainer,TXN828003,,75000.00,1759500.00
+22-Apr-2025,Client Payment - INV-8230,TXN103538,,98000.00,1857500.00
+23-Apr-2025,Broadband Internet Invoice,TXN546401,3200.00,,1854300.00
+24-Apr-2025,Office Rent Payment,TXN425092,45000.00,,1809300.00
+26-Apr-2025,Office Rent Payment,TXN690334,45000.00,,1764300.00
+28-Apr-2025,Electricity Board Utility,TXN472986,8500.00,,1755800.00
+30-Apr-2025,Advisory Service Retainer,TXN489124,,75000.00,1830800.00
+01-May-2025,Office Rent Payment,TXN421482,45000.00,,1785800.00
+02-May-2025,Professional Fee Settlement,TXN978648,,150000.00,1935800.00
+03-May-2025,Electricity Board Utility,TXN920902,8500.00,,1927300.00
+04-May-2025,Office Rent Payment,TXN417652,45000.00,,1882300.00
+05-May-2025,Office Rent Payment,TXN647481,45000.00,,1837300.00
+07-May-2025,Local Courier Logistics,TXN529730,1500.00,,1835800.00
+09-May-2025,Client Payment - INV-8230,TXN485731,,98000.00,1933800.00
+11-May-2025,Amazon Web Services Cloud,TXN875759,18500.00,,1915300.00
+13-May-2025,Electricity Board Utility,TXN470970,8500.00,,1906800.00
+15-May-2025,Office Rent Payment,TXN439955,45000.00,,1861800.00
+17-May-2025,Client Payment - INV-8219,TXN342165,,125000.00,1986800.00
+19-May-2025,Office Rent Payment,TXN912945,45000.00,,1941800.00
+21-May-2025,Local Courier Logistics,TXN316197,1500.00,,1940300.00
+23-May-2025,Stationery Purchases,TXN955841,4800.00,,1935500.00
+25-May-2025,Local Courier Logistics,TXN643136,1500.00,,1934000.00
+27-May-2025,Client Payment - INV-8230,TXN447733,,98000.00,2032000.00
+28-May-2025,Client Payment - INV-8219,TXN577853,,125000.00,2157000.00
+29-May-2025,Professional Fee Settlement,TXN325177,,150000.00,2307000.00
+30-May-2025,Broadband Internet Invoice,TXN981635,3200.00,,2303800.00
+31-May-2025,Client Payment - INV-8219,TXN685889,,125000.00,2428800.00
+02-Jun-2025,Professional Fee Settlement,TXN748342,,150000.00,2578800.00
+03-Jun-2025,Advisory Service Retainer,TXN957567,,75000.00,2653800.00
+12-Aug-2025,Cash Deposit at Self Counter Branch,TXN968539,,490626.00,3144426.00
+13-Aug-2025,Cash Deposit at Self Counter Branch,TXN691116,,494016.00,3638442.00
+14-Aug-2025,Cash Deposit at Self Counter Branch,TXN955363,,494343.00,4132785.00
+15-Aug-2025,Cash Deposit at Self Counter Branch,TXN168193,,485140.00,4617925.00
+05-Oct-2025,Funds Received from Tushar Enterprises LLP,TXN225711,,250000.00,4867925.00
+06-Oct-2025,Transfer back to Tushar Enterprises LLP,TXN141403,250000.00,,4617925.00
+12-Oct-2025,Funds Received from Tushar Enterprises LLP,TXN649952,,350000.00,4967925.00
+13-Oct-2025,Transfer back to Tushar Enterprises LLP,TXN471120,350000.00,,4617925.00
+04-Dec-2025,Cash disbursed to Ram Lal (Contractor) for site labor,TXN585131,6000.00,,4611925.00
+04-Dec-2025,Cash disbursed to Ram Lal (Contractor) for site labor,TXN283630,8000.00,,4603925.00

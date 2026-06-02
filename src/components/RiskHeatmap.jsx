@@ -7,6 +7,9 @@ import {
   ChevronRight
 } from 'lucide-react';
 
+const Y_LABELS = ["High Notice Risk", "Medium Notice Risk", "Low Notice Risk", "Negligible Notice"];
+const X_LABELS = ["Low Value Exposure", "Medium Value Exposure", "High Value Exposure", "Extreme Value Exposure"];
+
 export default function RiskHeatmap({ 
   findings, 
   setActiveTab 
@@ -45,10 +48,6 @@ export default function RiskHeatmap({
     return { x, y };
   };
 
-  // 4x4 Grid definition
-  const yLabels = ["High Notice Risk", "Medium Notice Risk", "Low Notice Risk", "Negligible Notice"];
-  const xLabels = ["Low Value Exposure", "Medium Value Exposure", "High Value Exposure", "Extreme Value Exposure"];
-  
   // Matrix cells mapping
   const matrix = Array(4).fill(null).map(() => Array(4).fill(null).map(() => []));
   
@@ -184,8 +183,8 @@ export default function RiskHeatmap({
                 <div style={{ background: 'var(--bg-primary)', padding: '0.75rem', borderRadius: '6px', borderBottom: '2px solid var(--accent)' }}>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Coordinates Active</div>
                   <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)', marginTop: '0.15rem' }}>
-                    Notice Prob: <span style={{ color: 'var(--accent)' }}>{yLabels[3 - selectedCell.y]}</span> <br />
-                    Exposure: <span style={{ color: 'var(--accent)' }}>{xLabels[selectedCell.x]}</span>
+                    Notice Prob: <span style={{ color: 'var(--accent)' }}>{Y_LABELS[3 - selectedCell.y]}</span> <br />
+                    Exposure: <span style={{ color: 'var(--accent)' }}>{X_LABELS[selectedCell.x]}</span>
                   </div>
                 </div>
 

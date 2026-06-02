@@ -11,6 +11,14 @@ import {
   BookOpen
 } from 'lucide-react';
 
+// Static suggested questions outside component to optimize render cycles
+const PREBUILT_QUESTIONS = [
+  { text: "What is wrong in my ITR / Tax audit?", tag: "General" },
+  { text: "Which tax deductions look risky?", tag: "80C/80D" },
+  { text: "Why does my ledger expense mismatch GST?", tag: "GST" },
+  { text: "Show suspicious transactions.", tag: "Cash/Bank" }
+];
+
 export default function AuditFindings({ 
   findings, 
   userRole 
@@ -40,14 +48,6 @@ export default function AuditFindings({
     if (activeFilter === "other") return f.severity === "medium" || f.severity === "low";
     return true;
   });
-
-  // Pre-configured questions
-  const prebuiltQuestions = [
-    { text: "What is wrong in my ITR / Tax audit?", tag: "General" },
-    { text: "Which tax deductions look risky?", tag: "80C/80D" },
-    { text: "Why does my ledger expense mismatch GST?", tag: "GST" },
-    { text: "Show suspicious transactions.", tag: "Cash/Bank" }
-  ];
 
   const handleSendMessage = (text) => {
     if (!text.trim()) return;
@@ -272,7 +272,7 @@ export default function AuditFindings({
         <div style={{ padding: '0.5rem 0.75rem', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
           <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Suggested Queries:</span>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem' }}>
-            {prebuiltQuestions.map((q, idx) => (
+            {PREBUILT_QUESTIONS.map((q, idx) => (
               <button 
                 key={idx}
                 onClick={() => handleSendMessage(q.text)}

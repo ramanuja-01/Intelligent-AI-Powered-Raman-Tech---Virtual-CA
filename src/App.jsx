@@ -26,7 +26,8 @@ import {
   Mail,
   UserCheck,
   Phone,
-  MapPin
+  MapPin,
+  RefreshCw
 } from 'lucide-react';
 
 export default function App() {

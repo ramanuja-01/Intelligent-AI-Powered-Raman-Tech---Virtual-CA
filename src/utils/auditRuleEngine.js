@@ -31,7 +31,7 @@ export function auditGrossSalary(form16Gross, aisGross) {
       description: `Employer reported gross salary of ₹${form16Gross.toLocaleString('en-IN')} in Form 16. However, the AIS displays total taxable salary payments of ₹${aisGross.toLocaleString('en-IN')} (a difference of ₹${diff.toLocaleString('en-IN')}).`,
       whyItMatters: "Mismatches in gross salary are flagged automatically by tax systems. Omissions lead to standard notices for underreporting taxable income.",
       amountMismatch: { expected: aisGross, actual: form16Gross, difference: diff },
-      suggestedCorrection: "Include the additional ₹${diff.toLocaleString('en-IN')} bonus or residual salary payment under Schedule Salary in your active ITR.",
+      suggestedCorrection: `Include the additional ₹${diff.toLocaleString('en-IN')} bonus or residual salary payment under Schedule Salary in your active ITR.`,
       confidenceScore: 0.96
     };
   }
@@ -51,7 +51,7 @@ export function auditGstItcExpensing(invoiceBase, invoiceGst, ledgerAmount) {
       description: `Invoice total of ₹${totalInvoice.toLocaleString('en-IN')} (including ₹${invoiceGst.toLocaleString('en-IN')} tax) was charged as a flat expense to your General Ledger. No separate GST Input Tax Credit asset was booked.`,
       whyItMatters: "Expensing the tax portion reduces corporate profits incorrectly while forfeiting the valuable Input Tax Credit asset, inflating your cash GST payment liabilities.",
       amountMismatch: { expected: invoiceBase, actual: ledgerAmount, difference: invoiceGst },
-      suggestedCorrection: "Pass a journal voucher to debit GST Input Tax Credit asset by ₹${invoiceGst.toLocaleString('en-IN')} and credit the respective Expense ledger.",
+      suggestedCorrection: `Pass a journal voucher to debit GST Input Tax Credit asset by ₹${invoiceGst.toLocaleString('en-IN')} and credit the respective Expense ledger.`,
       confidenceScore: 0.98
     };
   }

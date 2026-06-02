@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { 
   FileCheck2, 
   User, 
@@ -7,66 +7,65 @@ import {
   AlertCircle
 } from 'lucide-react';
 
+// Define static checklist items for different roles outside component to prevent recreation
+const CHECKLIST_TEMPLATES = {
+  individual: [
+    { id: "panLinked", text: "PAN - Aadhaar Integration status checked (mandatory for filing)", law: "Section 139AA" },
+    { id: "deductions80C", text: "Section 80C aggregate limits capped at ₹1,50,000 (PPF, ELSS, EPF)", law: "Section 80C" },
+    { id: "deductions80D", text: "Section 80D premium matches medical bills & within ₹25K/₹50K limit", law: "Section 80D" },
+    { id: "interestDeclared", text: "Declared Savings Account interest income under Schedule OS", law: "Section 80TTA / 80TTB" },
+    { id: "aisMatched", text: "Salary & dividend allocations matched against active AIS reports", law: "Rule 114-I" },
+    { id: "bankReconciled", text: "High-value cash transactions reconciled against SFT caps", law: "Section 285BA" }
+  ],
+  sme: [
+    { id: "msmePayments", text: "MSME payment cycles cleared within 45 days limits to avoid disallowance", law: "Section 43B(h)" },
+    { id: "cashPaymentsLimit", text: "Cash expenses checked to ensure no single-party payment exceeds ₹10K/day", law: "Section 40A(3)" },
+    { id: "gstReconciled", text: "Input Tax Credit (ITC) checked in GSTR-2B before claiming in GSTR-3B", law: "GST Section 16(2)(aa)" },
+    { id: "tdsDeposit", text: "TDS deposits cleared by the 7th of the following month", law: "Section 200(1)" },
+    { id: "directorsDeed", text: "Director related borrowing matched to compliance thresholds", law: "Companies Act Sec 185" },
+    { id: "depreciationAudit", text: "Depreciation rates calculated under block of assets rules", law: "Section 32" }
+  ],
+  ca: [
+    { id: "auditReport", text: "Tax Audit Report Form 3CD prepared and items cross-referenced", law: "Section 44AB" },
+    { id: "msmePayments", text: "MSME payments verified under the MSMED Act criteria", law: "Section 43B(h)" },
+    { id: "cashPaymentsLimit", text: "Cash transactions audited under Section 40A(3) thresholds", law: "Section 40A(3)" },
+    { id: "relatedParty", text: "Related party transactions checked for fair market pricing structures", law: "Section 40A(2)(b)" },
+    { id: "capitalAssets", text: "Audit of capital expense allocations vs revenue expense deductions", law: "Section 37(1)" },
+    { id: "undisclosedIncomes", text: "Search for unexplained credits or cash structuring anomalies", law: "Section 68 / 69" }
+  ],
+  accountant: [
+    { id: "basicVouching", text: "Bank ledger reconciliations executed and outstanding checks listed", law: "AS 1 / Bookkeeping" },
+    { id: "panLinked", text: "PAN numbers validated with active government directories", law: "Section 139AA" },
+    { id: "deductions80C", text: "Gathered premium certificates for ELSS, life premium, & home loan principal", law: "Section 80C" },
+    { id: "gstReconciled", text: "GST input schedules aligned with vendor filings in GSTR-2B", law: "GST Rules" },
+    { id: "interestDeclared", text: "Savings and FD interest extracted from annual bank passbooks", law: "Section 80TTA" }
+  ]
+};
+
 export default function ComplianceChecklist({ 
   userRole,
   checklist,
   setChecklist
 }) {
-  
-  // Define checklist items for different roles
-  const checklistTemplates = {
-    individual: [
-      { id: "panLinked", text: "PAN - Aadhaar Integration status checked (mandatory for filing)", law: "Section 139AA" },
-      { id: "deductions80C", text: "Section 80C aggregate limits capped at ₹1,50,000 (PPF, ELSS, EPF)", law: "Section 80C" },
-      { id: "deductions80D", text: "Section 80D premium matches medical bills & within ₹25K/₹50K limit", law: "Section 80D" },
-      { id: "interestDeclared", text: "Declared Savings Account interest income under Schedule OS", law: "Section 80TTA / 80TTB" },
-      { id: "aisMatched", text: "Salary & dividend allocations matched against active AIS reports", law: "Rule 114-I" },
-      { id: "bankReconciled", text: "High-value cash transactions reconciled against SFT caps", law: "Section 285BA" }
-    ],
-    sme: [
-      { id: "msmePayments", text: "MSME payment cycles cleared within 45 days limits to avoid disallowance", law: "Section 43B(h)" },
-      { id: "cashPaymentsLimit", text: "Cash expenses checked to ensure no single-party payment exceeds ₹10K/day", law: "Section 40A(3)" },
-      { id: "gstReconciled", text: "Input Tax Credit (ITC) checked in GSTR-2B before claiming in GSTR-3B", law: "GST Section 16(2)(aa)" },
-      { id: "tdsDeposit", text: "TDS deposits cleared by the 7th of the following month", law: "Section 200(1)" },
-      { id: "directorsDeed", text: "Director related borrowing matched to compliance thresholds", law: "Companies Act Sec 185" },
-      { id: "depreciationAudit", text: "Depreciation rates calculated under block of assets rules", law: "Section 32" }
-    ],
-    ca: [
-      { id: "auditReport", text: "Tax Audit Report Form 3CD prepared and items cross-referenced", law: "Section 44AB" },
-      { id: "msmePayments", text: "MSME payments verified under the MSMED Act criteria", law: "Section 43B(h)" },
-      { id: "cashPaymentsLimit", text: "Cash transactions audited under Section 40A(3) thresholds", law: "Section 40A(3)" },
-      { id: "relatedParty", text: "Related party transactions checked for fair market pricing structures", law: "Section 40A(2)(b)" },
-      { id: "capitalAssets", text: "Audit of capital expense allocations vs revenue expense deductions", law: "Section 37(1)" },
-      { id: "undisclosedIncomes", text: "Search for unexplained credits or cash structuring anomalies", law: "Section 68 / 69" }
-    ],
-    accountant: [
-      { id: "basicVouching", text: "Bank ledger reconciliations executed and outstanding checks listed", law: "AS 1 / Bookkeeping" },
-      { id: "panLinked", text: "PAN numbers validated with active government directories", law: "Section 139AA" },
-      { id: "deductions80C", text: "Gathered premium certificates for ELSS, life premium, & home loan principal", law: "Section 80C" },
-      { id: "gstReconciled", text: "GST input schedules aligned with vendor filings in GSTR-2B", law: "GST Rules" },
-      { id: "interestDeclared", text: "Savings and FD interest extracted from annual bank passbooks", law: "Section 80TTA" }
-    ]
-  };
-
   const activeRole = userRole || "individual";
-  const activeItems = checklistTemplates[activeRole] || checklistTemplates.individual;
+  const activeItems = CHECKLIST_TEMPLATES[activeRole] || CHECKLIST_TEMPLATES.individual;
 
-  // Initialize checklist state if items are not yet tracked
+  // Initialize checklist state if items are not yet tracked, decoupled from checklist changes
   useEffect(() => {
-    const updatedState = { ...checklist };
-    let hasChanged = false;
+    setChecklist(prev => {
+      let hasChanged = false;
+      const updatedState = { ...prev };
 
-    activeItems.forEach(item => {
-      if (updatedState[item.id] === undefined) {
-        updatedState[item.id] = false;
-        hasChanged = true;
-      }
+      activeItems.forEach(item => {
+        if (updatedState[item.id] === undefined) {
+          updatedState[item.id] = false;
+          hasChanged = true;
+        }
+      });
+
+      return hasChanged ? updatedState : prev;
     });
-
-    if (hasChanged) {
-      setChecklist(updatedState);
-    }
-  }, [activeRole, checklist, setChecklist]);
+  }, [activeRole, activeItems, setChecklist]);
 
   const toggleCheck = (itemId) => {
     setChecklist(prev => ({

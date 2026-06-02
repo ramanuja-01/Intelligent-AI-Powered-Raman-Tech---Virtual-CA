@@ -268,13 +268,13 @@ export default function ReportExport({
 
           {/* Signatures */}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '3.5rem', fontSize: '0.85rem' }}>
-            <div style={{ borderTop: '1px solid #cbd5e1', width: '220px', pt: '0.5rem', textAlign: 'center' }}>
+            <div style={{ borderTop: '1px solid #cbd5e1', width: '220px', paddingTop: '0.5rem', textAlign: 'center' }}>
               <div style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
                 ✓ VERIFIED BY TAXRECON AUDITOR
               </div>
               <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Raman Tech Audit Engine</span>
             </div>
-            <div style={{ borderTop: '1px solid #cbd5e1', width: '220px', pt: '0.5rem', textAlign: 'center' }}>
+            <div style={{ borderTop: '1px solid #cbd5e1', width: '220px', paddingTop: '0.5rem', textAlign: 'center' }}>
               <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Signature of Taxpayer / Assessee</span>
             </div>
           </div>
