@@ -103,7 +103,10 @@ export default function UploadWorkspace({
               extractedData: {
                 totalDeposits: parsedTransactions.reduce((s, t) => s + t.credit, 0),
                 totalWithdrawals: parsedTransactions.reduce((s, t) => s + t.debit, 0),
-                entries: parsedTransactions.length
+                entries: parsedTransactions.length,
+                accountName: "Audited Ledger - " + file.name.replace(/\.[^/.]+$/, ""),
+                accountNo: `502000${Math.floor(10000000 + Math.random() * 90000000)}`,
+                bank: "Parsed Statement Bank"
               },
               transactions: parsedTransactions
             };
@@ -175,7 +178,10 @@ export default function UploadWorkspace({
               extractedData: {
                 totalDeposits: 1964125,
                 totalWithdrawals: 256000,
-                entries: 6
+                entries: 6,
+                accountName: "Raman Tech Enterprises",
+                accountNo: "50200019283741",
+                bank: "HDFC Bank Current A/c"
               },
               transactions: [
                 { date: "12-Aug-2025", description: "Cash Deposit Branch", debit: 0, credit: 490626 },
@@ -285,6 +291,7 @@ export default function UploadWorkspace({
               extractedData: {
                 invoiceNo: "INV-9281",
                 vendorGstin: "27AAACT0012P1ZA",
+                sellerName: "TechBrands Solutions Ltd",
                 baseValue: 500000,
                 cgst: 45000,
                 sgst: 45000,
@@ -372,6 +379,9 @@ export default function UploadWorkspace({
               extractedData: {
                 employeePan: "BHUPR1982M",
                 employerTan: "MUMT01928E",
+                employerName: "Raman Tech Corp",
+                employeeName: "Ramanuja Pathy (RAMAN)",
+                employerPan: "AAACR0192A",
                 grossSalary: 1850000,
                 deductions80C: 150000,
                 tdsClaimed: 185000
@@ -387,7 +397,8 @@ export default function UploadWorkspace({
               extractedData: {
                 assesseePan: "BHUPR1982M",
                 salaryAis: 2050000,
-                interestAis: 35000
+                interestAis: 35000,
+                deductorName: "Raman Tech Corp"
               }
             };
 
@@ -518,6 +529,9 @@ export default function UploadWorkspace({
 
     if (docType === "Form 16") {
       return [
+        { id: "employerName", name: "Employer Name", top: "14%", left: "4%", width: "40%", height: "4.5%", value: data.employerName || "Raman Tech Corp", conf: "99.0%" },
+        { id: "employeeName", name: "Employee Name", top: "14%", left: "54%", width: "40%", height: "4.5%", value: data.employeeName || "Ramanuja Pathy (RAMAN)", conf: "99.5%" },
+        { id: "employerPan", name: "Employer PAN", top: "18.5%", left: "28%", width: "16%", height: "4.5%", value: data.employerPan || "AAACR0192A", conf: "99.1%" },
         { id: "pan", name: "Employee PAN", top: "18.5%", left: "73%", width: "16%", height: "4.5%", value: data.employeePan || "BHUPR1982M", conf: "99.8%" },
         { id: "tan", name: "Employer TAN", top: "21.5%", left: "28%", width: "16%", height: "4.5%", value: data.employerTan || "MUMT01928E", conf: "99.2%" },
         { id: "salary", name: "Gross Salary (Sec 17)", top: "31.2%", left: "80%", width: "15%", height: "4.5%", value: data.grossSalary !== undefined ? `₹${data.grossSalary.toLocaleString('en-IN')}` : "₹18,50,000", conf: "98.5%" },
@@ -528,6 +542,7 @@ export default function UploadWorkspace({
     if (docType === "Invoice") {
       return [
         { id: "invNo", name: "Invoice No", top: "4.5%", left: "82%", width: "14%", height: "5%", value: data.invoiceNo || "INV-9281", conf: "99.9%" },
+        { id: "sellerName", name: "Seller Name", top: "12%", left: "4%", width: "40%", height: "5%", value: data.sellerName || "TechBrands Solutions Ltd", conf: "99.2%" },
         { id: "gstin", name: "Vendor GSTIN", top: "18.5%", left: "27%", width: "28%", height: "5%", value: data.vendorGstin || "27AAACT0012P1ZA", conf: "98.7%" },
         { id: "base", name: "Base Taxable Value", top: "70.5%", left: "75%", width: "20%", height: "5%", value: data.baseValue !== undefined ? `₹${data.baseValue.toLocaleString('en-IN')}` : "₹5,00,000", conf: "99.1%" },
         { id: "cgst", name: "CGST (9%)", top: "76.5%", left: "75%", width: "20%", height: "5%", value: data.cgst !== undefined ? `₹${data.cgst.toLocaleString('en-IN')}` : "₹45,000", conf: "99.0%" },
@@ -537,12 +552,15 @@ export default function UploadWorkspace({
     if (docType === "AIS") {
       return [
         { id: "pan", name: "Assessee PAN", top: "14.5%", left: "24%", width: "20%", height: "5%", value: data.assesseePan || "BHUPR1982M", conf: "99.8%" },
+        { id: "deductorName", name: "Deductor Name", top: "34%", left: "20%", width: "40%", height: "4.5%", value: data.deductorName || "Raman Tech Corp", conf: "99.0%" },
         { id: "salAIS", name: "Salary payments Reflected", top: "30%", left: "78%", width: "18%", height: "5%", value: data.salaryAis !== undefined ? `₹${data.salaryAis.toLocaleString('en-IN')}` : "₹20,50,000", conf: "99.4%" },
         { id: "intAIS", name: "Interest Credit Reflected", top: "47.5%", left: "78%", width: "18%", height: "5%", value: data.interestAis !== undefined ? `₹${data.interestAis.toLocaleString('en-IN')}` : "₹35,000", conf: "98.9%" }
       ];
     }
     if (docType === "Bank Statement") {
       return [
+        { id: "accountName", name: "Account Holder Name", top: "13%", left: "20%", width: "40%", height: "4.5%", value: data.accountName || "Raman Tech Enterprises", conf: "99.4%" },
+        { id: "accountNo", name: "Account Number", top: "15.5%", left: "20%", width: "30%", height: "4.5%", value: data.accountNo || "50200019283741", conf: "99.8%" },
         { id: "structCash", name: "Structured Cash Deposits", top: "26%", left: "4%", width: "92%", height: "14%", value: data.totalDeposits !== undefined ? `₹${data.totalDeposits.toLocaleString('en-IN')}` : "₹19,64,125", conf: "99.1%" },
         { id: "roundTrip", name: "LLP Round-Trip Credits", top: "40%", left: "4%", width: "92%", height: "14%", value: "₹6,00,000", conf: "98.8%" },
         { id: "cashWages", name: "Ram Lal Cash Wages", top: "54%", left: "4%", width: "92%", height: "14%", value: "₹14,000", conf: "99.4%" }
@@ -839,8 +857,42 @@ export default function UploadWorkspace({
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.5rem', gap: '1rem' }}>
                       <div>
-                        <strong>Employer Name:</strong> Raman Tech Corp <br />
-                        <strong>PAN of Employer:</strong> AAACR0192A <br />
+                        <strong>Employer Name:</strong>{' '}
+                        <span 
+                          onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'employerName'))}
+                          onMouseLeave={() => setHoveredField(null)}
+                          style={{ 
+                            fontWeight: 600,
+                            display: 'inline-block',
+                            position: 'relative', 
+                            padding: '0.05rem 0.25rem',
+                            border: hoveredField?.id === 'employerName' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: hoveredField?.id === 'employerName' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            borderRadius: '4px',
+                            cursor: 'crosshair'
+                          }}
+                        >
+                          {currentDoc.extractedData?.employerName || "Raman Tech Corp"}
+                        </span>
+                        <br />
+                        <strong>PAN of Employer:</strong>{' '}
+                        <span 
+                          onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'employerPan'))}
+                          onMouseLeave={() => setHoveredField(null)}
+                          style={{ 
+                            fontWeight: 600,
+                            display: 'inline-block',
+                            position: 'relative', 
+                            padding: '0.05rem 0.25rem',
+                            border: hoveredField?.id === 'employerPan' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: hoveredField?.id === 'employerPan' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            borderRadius: '4px',
+                            cursor: 'crosshair'
+                          }}
+                        >
+                          {currentDoc.extractedData?.employerPan || "AAACR0192A"}
+                        </span>
+                        <br />
                         <strong>TAN of Employer:</strong>{' '}
                         <span 
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'tan'))}
@@ -860,7 +912,24 @@ export default function UploadWorkspace({
                         </span>
                       </div>
                       <div>
-                        <strong>Employee Name:</strong> Ramanuja Pathy (RAMAN) <br />
+                        <strong>Employee Name:</strong>{' '}
+                        <span 
+                          onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'employeeName'))}
+                          onMouseLeave={() => setHoveredField(null)}
+                          style={{ 
+                            fontWeight: 600,
+                            display: 'inline-block',
+                            position: 'relative', 
+                            padding: '0.05rem 0.25rem',
+                            border: hoveredField?.id === 'employeeName' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: hoveredField?.id === 'employeeName' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            borderRadius: '4px',
+                            cursor: 'crosshair'
+                          }}
+                        >
+                          {currentDoc.extractedData?.employeeName || "Ramanuja Pathy (RAMAN)"}
+                        </span>
+                        <br />
                         <strong>PAN of Employee:</strong>{' '}
                         <span 
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'pan'))}
@@ -957,7 +1026,24 @@ export default function UploadWorkspace({
                     </div>
 
                     <div>
-                      <strong>Seller:</strong> TechBrands Solutions Ltd <br />
+                      <strong>Seller:</strong>{' '}
+                      <span
+                        onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'sellerName'))}
+                        onMouseLeave={() => setHoveredField(null)}
+                        style={{ 
+                          fontWeight: 600,
+                          display: 'inline-block',
+                          position: 'relative', 
+                          padding: '0.05rem 0.25rem',
+                          border: hoveredField?.id === 'sellerName' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                          background: hoveredField?.id === 'sellerName' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                          borderRadius: '4px',
+                          cursor: 'crosshair'
+                        }}
+                      >
+                        {currentDoc.extractedData?.sellerName || "TechBrands Solutions Ltd"}
+                      </span>
+                      <br />
                       <strong>GSTIN of Seller:</strong> <span style={{ opacity: 0.6 }}>{currentDoc.extractedData?.vendorGstin || "27AAACT0012P1ZA"}</span>
                     </div>
 
@@ -1042,7 +1128,25 @@ export default function UploadWorkspace({
                           <span>1. Salary Earnings (Reflected Sec 192)</span>
                           <span style={{ fontWeight: 'bold' }}>{currentDoc.extractedData?.salaryAis !== undefined ? `₹${currentDoc.extractedData.salaryAis.toLocaleString('en-IN')}` : "₹20,50,000"}</span>
                         </div>
-                        <span style={{ fontSize: '0.65rem', color: '#64748b' }}>Deductor: Raman Tech Corp</span>
+                        <span style={{ fontSize: '0.65rem', color: '#64748b' }}>
+                          Deductor:{' '}
+                          <span
+                            onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'deductorName'))}
+                            onMouseLeave={() => setHoveredField(null)}
+                            style={{ 
+                              fontWeight: 600,
+                              display: 'inline-block',
+                              position: 'relative', 
+                              padding: '0.02rem 0.2rem',
+                              border: hoveredField?.id === 'deductorName' ? '1px solid var(--accent)' : '1px dashed var(--color-high)',
+                              background: hoveredField?.id === 'deductorName' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.01)',
+                              borderRadius: '3px',
+                              cursor: 'crosshair'
+                            }}
+                          >
+                            {currentDoc.extractedData?.deductorName || "Raman Tech Corp"}
+                          </span>
+                        </span>
                       </div>
 
                       <div style={{ border: '1px solid #e2e8f0', padding: '0.5rem', borderRadius: '4px' }}>
@@ -1087,9 +1191,43 @@ export default function UploadWorkspace({
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.5rem', fontSize: '0.7rem', gap: '0.5rem' }}>
                       <div>
-                        <strong>Account Name:</strong> Raman Tech Enterprises <br />
-                        <strong>Account No:</strong> 50200019283741 <br />
-                        <strong>Bank:</strong> HDFC Bank Current A/c
+                        <strong>Account Name:</strong>{' '}
+                        <span
+                          onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'accountName'))}
+                          onMouseLeave={() => setHoveredField(null)}
+                          style={{ 
+                            fontWeight: 600,
+                            display: 'inline-block',
+                            position: 'relative', 
+                            padding: '0.02rem 0.2rem',
+                            border: hoveredField?.id === 'accountName' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: hoveredField?.id === 'accountName' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.01)',
+                            borderRadius: '3px',
+                            cursor: 'crosshair'
+                          }}
+                        >
+                          {currentDoc.extractedData?.accountName || "Raman Tech Enterprises"}
+                        </span>
+                        <br />
+                        <strong>Account No:</strong>{' '}
+                        <span
+                          onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'accountNo'))}
+                          onMouseLeave={() => setHoveredField(null)}
+                          style={{ 
+                            fontWeight: 600,
+                            display: 'inline-block',
+                            position: 'relative', 
+                            padding: '0.02rem 0.2rem',
+                            border: hoveredField?.id === 'accountNo' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: hoveredField?.id === 'accountNo' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.01)',
+                            borderRadius: '3px',
+                            cursor: 'crosshair'
+                          }}
+                        >
+                          {currentDoc.extractedData?.accountNo || "50200019283741"}
+                        </span>
+                        <br />
+                        <strong>Bank:</strong> {currentDoc.extractedData?.bank || "HDFC Bank Current A/c"}
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <strong>Period:</strong> FY 2025 - 2026 <br />
