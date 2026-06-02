@@ -104,7 +104,8 @@ export default function UploadWorkspace({
                 totalDeposits: parsedTransactions.reduce((s, t) => s + t.credit, 0),
                 totalWithdrawals: parsedTransactions.reduce((s, t) => s + t.debit, 0),
                 entries: parsedTransactions.length
-              }
+              },
+              transactions: parsedTransactions
             };
 
             // Update app states
@@ -175,7 +176,15 @@ export default function UploadWorkspace({
                 totalDeposits: 1964125,
                 totalWithdrawals: 256000,
                 entries: 6
-              }
+              },
+              transactions: [
+                { date: "12-Aug-2025", description: "Cash Deposit Branch", debit: 0, credit: 490626 },
+                { date: "13-Aug-2025", description: "Cash Deposit Branch", debit: 0, credit: 494016 },
+                { date: "05-Oct-2025", description: "Tushar Ent LLP Ref: 921A", debit: 0, credit: 250000 },
+                { date: "06-Oct-2025", description: "Transfer back to Tushar Ent", debit: 250000, credit: 0 },
+                { date: "04-Dec-2025", description: "Cash pay Ram Lal wage day1", debit: 6000, credit: 0 },
+                { date: "04-Dec-2025", description: "Cash pay Ram Lal wage day2", debit: 8000, credit: 0 }
+              ]
             };
             
             const packageFindings = [
@@ -502,35 +511,39 @@ export default function UploadWorkspace({
 
   const currentDoc = documents.find(d => d.id === selectedDocId);
 
-  const getBoundingBoxes = (docType) => {
+  const getBoundingBoxes = (doc) => {
+    if (!doc) return [];
+    const docType = doc.type;
+    const data = doc.extractedData || {};
+
     if (docType === "Form 16") {
       return [
-        { id: "pan", name: "Employee PAN", top: "18.5%", left: "73%", width: "16%", height: "4.5%", value: "BHUPR1982M", conf: "99.8%" },
-        { id: "tan", name: "Employer TAN", top: "21.5%", left: "28%", width: "16%", height: "4.5%", value: "MUMT01928E", conf: "99.2%" },
-        { id: "salary", name: "Gross Salary (Sec 17)", top: "31.2%", left: "80%", width: "15%", height: "4.5%", value: "₹18,50,000", conf: "98.5%" },
-        { id: "ded80C", name: "80C Deductions", top: "39.5%", left: "80%", width: "15%", height: "4.5%", value: "₹1,50,000", conf: "97.9%" },
-        { id: "tds", name: "TDS Claimed", top: "91%", left: "80%", width: "15%", height: "5%", value: "₹1,85,000", conf: "99.5%" }
+        { id: "pan", name: "Employee PAN", top: "18.5%", left: "73%", width: "16%", height: "4.5%", value: data.employeePan || "BHUPR1982M", conf: "99.8%" },
+        { id: "tan", name: "Employer TAN", top: "21.5%", left: "28%", width: "16%", height: "4.5%", value: data.employerTan || "MUMT01928E", conf: "99.2%" },
+        { id: "salary", name: "Gross Salary (Sec 17)", top: "31.2%", left: "80%", width: "15%", height: "4.5%", value: data.grossSalary !== undefined ? `₹${data.grossSalary.toLocaleString('en-IN')}` : "₹18,50,000", conf: "98.5%" },
+        { id: "ded80C", name: "80C Deductions", top: "39.5%", left: "80%", width: "15%", height: "4.5%", value: data.deductions80C !== undefined ? `₹${data.deductions80C.toLocaleString('en-IN')}` : "₹1,50,000", conf: "97.9%" },
+        { id: "tds", name: "TDS Claimed", top: "91%", left: "80%", width: "15%", height: "5%", value: data.tdsClaimed !== undefined ? `₹${data.tdsClaimed.toLocaleString('en-IN')}` : "₹1,85,000", conf: "99.5%" }
       ];
     }
     if (docType === "Invoice") {
       return [
-        { id: "invNo", name: "Invoice No", top: "4.5%", left: "82%", width: "14%", height: "5%", value: "INV-9281", conf: "99.9%" },
-        { id: "gstin", name: "Vendor GSTIN", top: "18.5%", left: "27%", width: "28%", height: "5%", value: "27AAACT0012P1ZA", conf: "98.7%" },
-        { id: "base", name: "Base Taxable Value", top: "70.5%", left: "75%", width: "20%", height: "5%", value: "₹5,00,000", conf: "99.1%" },
-        { id: "cgst", name: "CGST (9%)", top: "76.5%", left: "75%", width: "20%", height: "5%", value: "₹45,000", conf: "99.0%" },
-        { id: "sgst", name: "SGST (9%)", top: "82.5%", left: "75%", width: "20%", height: "5%", value: "₹45,000", conf: "99.0%" }
+        { id: "invNo", name: "Invoice No", top: "4.5%", left: "82%", width: "14%", height: "5%", value: data.invoiceNo || "INV-9281", conf: "99.9%" },
+        { id: "gstin", name: "Vendor GSTIN", top: "18.5%", left: "27%", width: "28%", height: "5%", value: data.vendorGstin || "27AAACT0012P1ZA", conf: "98.7%" },
+        { id: "base", name: "Base Taxable Value", top: "70.5%", left: "75%", width: "20%", height: "5%", value: data.baseValue !== undefined ? `₹${data.baseValue.toLocaleString('en-IN')}` : "₹5,00,000", conf: "99.1%" },
+        { id: "cgst", name: "CGST (9%)", top: "76.5%", left: "75%", width: "20%", height: "5%", value: data.cgst !== undefined ? `₹${data.cgst.toLocaleString('en-IN')}` : "₹45,000", conf: "99.0%" },
+        { id: "sgst", name: "SGST (9%)", top: "82.5%", left: "75%", width: "20%", height: "5%", value: data.sgst !== undefined ? `₹${data.sgst.toLocaleString('en-IN')}` : "₹45,000", conf: "99.0%" }
       ];
     }
     if (docType === "AIS") {
       return [
-        { id: "pan", name: "Assessee PAN", top: "14.5%", left: "24%", width: "20%", height: "5%", value: "BHUPR1982M", conf: "99.8%" },
-        { id: "salAIS", name: "Salary payments Reflected", top: "30%", left: "78%", width: "18%", height: "5%", value: "₹20,50,000", conf: "99.4%" },
-        { id: "intAIS", name: "Interest Credit Reflected", top: "47.5%", left: "78%", width: "18%", height: "5%", value: "₹35,000", conf: "98.9%" }
+        { id: "pan", name: "Assessee PAN", top: "14.5%", left: "24%", width: "20%", height: "5%", value: data.assesseePan || "BHUPR1982M", conf: "99.8%" },
+        { id: "salAIS", name: "Salary payments Reflected", top: "30%", left: "78%", width: "18%", height: "5%", value: data.salaryAis !== undefined ? `₹${data.salaryAis.toLocaleString('en-IN')}` : "₹20,50,000", conf: "99.4%" },
+        { id: "intAIS", name: "Interest Credit Reflected", top: "47.5%", left: "78%", width: "18%", height: "5%", value: data.interestAis !== undefined ? `₹${data.interestAis.toLocaleString('en-IN')}` : "₹35,000", conf: "98.9%" }
       ];
     }
     if (docType === "Bank Statement") {
       return [
-        { id: "structCash", name: "Structured Cash Deposits", top: "26%", left: "4%", width: "92%", height: "14%", value: "₹19,64,125", conf: "99.1%" },
+        { id: "structCash", name: "Structured Cash Deposits", top: "26%", left: "4%", width: "92%", height: "14%", value: data.totalDeposits !== undefined ? `₹${data.totalDeposits.toLocaleString('en-IN')}` : "₹19,64,125", conf: "99.1%" },
         { id: "roundTrip", name: "LLP Round-Trip Credits", top: "40%", left: "4%", width: "92%", height: "14%", value: "₹6,00,000", conf: "98.8%" },
         { id: "cashWages", name: "Ram Lal Cash Wages", top: "54%", left: "4%", width: "92%", height: "14%", value: "₹14,000", conf: "99.4%" }
       ];
@@ -538,7 +551,7 @@ export default function UploadWorkspace({
     return [];
   };
 
-  const activeBoxes = currentDoc ? getBoundingBoxes(currentDoc.type) : [];
+  const activeBoxes = currentDoc ? getBoundingBoxes(currentDoc) : [];
 
   return (
     <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -819,7 +832,7 @@ export default function UploadWorkspace({
 
                 {/* Document layout content emulator */}
                 {currentDoc.type === "Form 16" && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%', border: '1px solid #94a3b8', padding: '1rem', background: '#fff', position: 'relative' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%', border: '1px solid #94a3b8', padding: '1.25rem', background: '#fff', position: 'relative' }}>
                     <div style={{ textAlign: 'center', fontWeight: 'bold', borderBottom: '2px solid #334155', paddingBottom: '0.5rem', fontSize: '0.85rem' }}>
                       FORM NO. 16 - PART B (SALARY CERTIFICATE)
                     </div>
@@ -828,59 +841,111 @@ export default function UploadWorkspace({
                       <div>
                         <strong>Employer Name:</strong> Raman Tech Corp <br />
                         <strong>PAN of Employer:</strong> AAACR0192A <br />
-                        <strong>TAN of Employer:</strong> <span style={{ opacity: 0.6 }}>MUMT01928E</span>
+                        <strong>TAN of Employer:</strong>{' '}
+                        <span 
+                          onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'tan'))}
+                          onMouseLeave={() => setHoveredField(null)}
+                          style={{ 
+                            fontWeight: 600,
+                            display: 'inline-block',
+                            position: 'relative', 
+                            padding: '0.05rem 0.25rem',
+                            border: hoveredField?.id === 'tan' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: hoveredField?.id === 'tan' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            borderRadius: '4px',
+                            cursor: 'crosshair'
+                          }}
+                        >
+                          {currentDoc.extractedData?.employerTan || "MUMT01928E"}
+                        </span>
                       </div>
                       <div>
                         <strong>Employee Name:</strong> Ramanuja Pathy (RAMAN) <br />
-                        <strong>PAN of Employee:</strong> <span style={{ opacity: 0.6 }}>BHUPR1982M</span>
+                        <strong>PAN of Employee:</strong>{' '}
+                        <span 
+                          onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'pan'))}
+                          onMouseLeave={() => setHoveredField(null)}
+                          style={{ 
+                            fontWeight: 600,
+                            display: 'inline-block',
+                            position: 'relative', 
+                            padding: '0.05rem 0.25rem',
+                            border: hoveredField?.id === 'pan' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: hoveredField?.id === 'pan' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            borderRadius: '4px',
+                            cursor: 'crosshair'
+                          }}
+                        >
+                          {currentDoc.extractedData?.employeePan || "BHUPR1982M"}
+                        </span>
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1, marginTop: '1rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem', alignItems: 'center' }}>
                         <span>1. Gross Salary under Section 17(1)</span>
-                        <span style={{ fontWeight: 'bold' }}>₹18,50,000</span>
+                        <span 
+                          onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'salary'))}
+                          onMouseLeave={() => setHoveredField(null)}
+                          style={{ 
+                            fontWeight: 'bold', 
+                            position: 'relative', 
+                            padding: '0.05rem 0.25rem',
+                            border: hoveredField?.id === 'salary' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: hoveredField?.id === 'salary' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            borderRadius: '4px',
+                            cursor: 'crosshair'
+                          }}
+                        >
+                          {currentDoc.extractedData?.grossSalary !== undefined ? `₹${currentDoc.extractedData.grossSalary.toLocaleString('en-IN')}` : "₹18,50,000"}
+                        </span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem', alignItems: 'center' }}>
                         <span>2. Deductions under Section 16 (Standard)</span>
                         <span>₹50,000</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem', alignItems: 'center' }}>
                         <span>3. Deductions under Chapter VI-A (Section 80C)</span>
-                        <span style={{ fontWeight: 'bold' }}>₹1,50,000</span>
+                        <span 
+                          onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'ded80C'))}
+                          onMouseLeave={() => setHoveredField(null)}
+                          style={{ 
+                            fontWeight: 'bold', 
+                            position: 'relative', 
+                            padding: '0.05rem 0.25rem',
+                            border: hoveredField?.id === 'ded80C' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: hoveredField?.id === 'ded80C' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            borderRadius: '4px',
+                            cursor: 'crosshair'
+                          }}
+                        >
+                          {currentDoc.extractedData?.deductions80C !== undefined ? `₹${currentDoc.extractedData.deductions80C.toLocaleString('en-IN')}` : "₹1,50,000"}
+                        </span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem', alignItems: 'center' }}>
                         <span>4. Deductions under Section 80D</span>
                         <span>₹50,000</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem', marginTop: 'auto' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem', marginTop: 'auto', alignItems: 'center' }}>
                         <strong>5. Net Tax Deducted at Source (TDS)</strong>
-                        <strong style={{ color: '#1e3a8a' }}>₹1,85,000</strong>
+                        <span 
+                          onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'tds'))}
+                          onMouseLeave={() => setHoveredField(null)}
+                          style={{ 
+                            fontWeight: 'bold', 
+                            position: 'relative', 
+                            padding: '0.05rem 0.25rem',
+                            border: hoveredField?.id === 'tds' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: hoveredField?.id === 'tds' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            borderRadius: '4px',
+                            cursor: 'crosshair',
+                            color: '#1e3a8a'
+                          }}
+                        >
+                          {currentDoc.extractedData?.tdsClaimed !== undefined ? `₹${currentDoc.extractedData.tdsClaimed.toLocaleString('en-IN')}` : "₹1,85,000"}
+                        </span>
                       </div>
                     </div>
-
-                    {/* Overlaid Absolute Bounding Boxes */}
-                    {activeBoxes.map((box) => (
-                      <div 
-                        key={box.id}
-                        onMouseEnter={() => setHoveredField(box)}
-                        onMouseLeave={() => setHoveredField(null)}
-                        className="animate-pulse-glow"
-                        style={{ 
-                          position: 'absolute',
-                          top: box.top,
-                          left: box.left,
-                          width: box.width,
-                          height: box.height,
-                          border: hoveredField?.id === box.id ? '2.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                          background: hoveredField?.id === box.id ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.03)',
-                          borderRadius: '4px',
-                          cursor: 'crosshair',
-                          zIndex: 5,
-                          transition: 'all 0.15s ease'
-                        }}
-                      />
-                    ))}
                   </div>
                 )}
 
@@ -888,12 +953,12 @@ export default function UploadWorkspace({
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', border: '1px solid #94a3b8', padding: '1.25rem', background: '#fff', position: 'relative' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #334155', paddingBottom: '0.5rem' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>TAX INVOICE</span>
-                      <span>No: <span style={{ opacity: 0.6 }}>INV-9281</span></span>
+                      <span>No: <span style={{ opacity: 0.6 }}>{currentDoc.extractedData?.invoiceNo || "INV-9281"}</span></span>
                     </div>
 
                     <div>
                       <strong>Seller:</strong> TechBrands Solutions Ltd <br />
-                      <strong>GSTIN of Seller:</strong> <span style={{ opacity: 0.6 }}>27AAACT0012P1ZA</span>
+                      <strong>GSTIN of Seller:</strong> <span style={{ opacity: 0.6 }}>{currentDoc.extractedData?.vendorGstin || "27AAACT0012P1ZA"}</span>
                     </div>
 
                     <div style={{ border: '1px solid #cbd5e1', marginTop: '1rem', borderRadius: '4px' }}>
@@ -905,26 +970,26 @@ export default function UploadWorkspace({
                       <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1fr 1.2fr', padding: '0.4rem' }}>
                         <span>Consulting services</span>
                         <span>1</span>
-                        <span>₹5,00,000</span>
+                        <span>{currentDoc.extractedData?.baseValue !== undefined ? `₹${currentDoc.extractedData.baseValue.toLocaleString('en-IN')}` : "₹5,00,000"}</span>
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignSelf: 'flex-end', width: '220px', marginTop: 'auto' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span>Base Total:</span>
-                        <span>₹5,00,000</span>
+                        <span>{currentDoc.extractedData?.baseValue !== undefined ? `₹${currentDoc.extractedData.baseValue.toLocaleString('en-IN')}` : "₹5,00,000"}</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span>CGST (9%):</span>
-                        <span>₹45,000</span>
+                        <span>{currentDoc.extractedData?.cgst !== undefined ? `₹${currentDoc.extractedData.cgst.toLocaleString('en-IN')}` : "₹45,000"}</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span>SGST (9%):</span>
-                        <span>₹45,000</span>
+                        <span>{currentDoc.extractedData?.sgst !== undefined ? `₹${currentDoc.extractedData.sgst.toLocaleString('en-IN')}` : "₹45,000"}</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #334155', paddingTop: '0.4rem', fontWeight: 'bold', color: '#1e3a8a' }}>
                         <span>Invoice Total:</span>
-                        <span>₹5,90,000</span>
+                        <span>{currentDoc.extractedData?.total !== undefined ? `₹${currentDoc.extractedData.total.toLocaleString('en-IN')}` : "₹5,90,000"}</span>
                       </div>
                     </div>
 
@@ -962,7 +1027,7 @@ export default function UploadWorkspace({
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', fontSize: '0.7rem' }}>
                       <div>
                         <strong>Financial Year:</strong> 2025-26 <br />
-                        <strong>PAN Number:</strong> <span style={{ opacity: 0.6 }}>BHUPR1982M</span>
+                        <strong>PAN Number:</strong> <span style={{ opacity: 0.6 }}>{currentDoc.extractedData?.assesseePan || "BHUPR1982M"}</span>
                       </div>
                       <div>
                         <strong>Statement Date:</strong> 31-May-2026
@@ -975,7 +1040,7 @@ export default function UploadWorkspace({
                       <div style={{ border: '1px solid #e2e8f0', padding: '0.5rem', borderRadius: '4px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem' }}>
                           <span>1. Salary Earnings (Reflected Sec 192)</span>
-                          <span style={{ fontWeight: 'bold' }}>₹20,50,000</span>
+                          <span style={{ fontWeight: 'bold' }}>{currentDoc.extractedData?.salaryAis !== undefined ? `₹${currentDoc.extractedData.salaryAis.toLocaleString('en-IN')}` : "₹20,50,000"}</span>
                         </div>
                         <span style={{ fontSize: '0.65rem', color: '#64748b' }}>Deductor: Raman Tech Corp</span>
                       </div>
@@ -983,7 +1048,7 @@ export default function UploadWorkspace({
                       <div style={{ border: '1px solid #e2e8f0', padding: '0.5rem', borderRadius: '4px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem' }}>
                           <span>2. Interest Credited (Saving & FD)</span>
-                          <span style={{ fontWeight: 'bold' }}>₹35,000</span>
+                          <span style={{ fontWeight: 'bold' }}>{currentDoc.extractedData?.interestAis !== undefined ? `₹${currentDoc.extractedData.interestAis.toLocaleString('en-IN')}` : "₹35,000"}</span>
                         </div>
                         <span style={{ fontSize: '0.65rem', color: '#64748b' }}>Deductor: HDFC Bank Ltd</span>
                       </div>
@@ -1041,42 +1106,55 @@ export default function UploadWorkspace({
                       </div>
                       
                       <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.04)' }}>
-                          <span>12-Aug-2025</span>
-                          <span>Cash Deposit Branch</span>
-                          <span>—</span>
-                          <span style={{ fontWeight: 'bold' }}>₹4,90,626</span>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.04)' }}>
-                          <span>13-Aug-2025</span>
-                          <span>Cash Deposit Branch</span>
-                          <span>—</span>
-                          <span style={{ fontWeight: 'bold' }}>₹4,94,016</span>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.04)' }}>
-                          <span>05-Oct-2025</span>
-                          <span>Tushar Ent LLP...</span>
-                          <span>—</span>
-                          <span style={{ fontWeight: 'bold' }}>₹2,50,000</span>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.04)' }}>
-                          <span>06-Oct-2025</span>
-                          <span>Transfer back...</span>
-                          <span style={{ fontWeight: 'bold' }}>₹2,50,000</span>
-                          <span>—</span>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.04)' }}>
-                          <span>04-Dec-2025</span>
-                          <span>Cash pay Ram Lal</span>
-                          <span style={{ fontWeight: 'bold' }}>₹6,000</span>
-                          <span>—</span>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.04)' }}>
-                          <span>04-Dec-2025</span>
-                          <span>Cash pay Ram Lal</span>
-                          <span style={{ fontWeight: 'bold' }}>₹8,000</span>
-                          <span>—</span>
-                        </div>
+                        {currentDoc.transactions && currentDoc.transactions.length > 0 ? (
+                          currentDoc.transactions.map((t, idx) => (
+                            <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.02)' }}>
+                              <span>{t.date}</span>
+                              <span>{t.description}</span>
+                              <span>{t.debit > 0 ? `₹${t.debit.toLocaleString('en-IN')}` : '—'}</span>
+                              <span style={{ fontWeight: t.credit > 0 ? 'bold' : 'normal' }}>{t.credit > 0 ? `₹${t.credit.toLocaleString('en-IN')}` : '—'}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.04)' }}>
+                              <span>12-Aug-2025</span>
+                              <span>Cash Deposit Branch</span>
+                              <span>—</span>
+                              <span style={{ fontWeight: 'bold' }}>₹4,90,626</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.04)' }}>
+                              <span>13-Aug-2025</span>
+                              <span>Cash Deposit Branch</span>
+                              <span>—</span>
+                              <span style={{ fontWeight: 'bold' }}>₹4,94,016</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.04)' }}>
+                              <span>05-Oct-2025</span>
+                              <span>Tushar Ent LLP...</span>
+                              <span>—</span>
+                              <span style={{ fontWeight: 'bold' }}>₹2,50,000</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.04)' }}>
+                              <span>06-Oct-2025</span>
+                              <span>Transfer back...</span>
+                              <span style={{ fontWeight: 'bold' }}>₹2,50,000</span>
+                              <span>—</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.04)' }}>
+                              <span>04-Dec-2025</span>
+                              <span>Cash pay Ram Lal</span>
+                              <span style={{ fontWeight: 'bold' }}>₹6,000</span>
+                              <span>—</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.2fr 1.2fr', padding: '0.3rem', borderBottom: '1px solid #f1f5f9', background: 'rgba(249, 115, 22, 0.04)' }}>
+                              <span>04-Dec-2025</span>
+                              <span>Cash pay Ram Lal</span>
+                              <span style={{ fontWeight: 'bold' }}>₹8,000</span>
+                              <span>—</span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
 
@@ -1116,12 +1194,58 @@ export default function UploadWorkspace({
 
               <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.25rem', height: 'fit-content' }}>
                 {!hoveredField ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '5rem 1rem', border: '1px dashed var(--border)', borderRadius: '8px', color: 'var(--text-secondary)', textAlign: 'center' }}>
-                    <ScanFace size={36} style={{ color: 'var(--accent)', opacity: 0.6 }} />
-                    <h4 style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)' }}>Coordinate Scanner Ready</h4>
-                    <p style={{ fontSize: '0.75rem', maxWidth: '240px' }}>
-                      Hover or tap the dashed bounding boxes on the visual tax sheet to inspect real-time OCR confidence scores.
-                    </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', padding: '0.5rem' }}>
+                    <div style={{ background: 'var(--accent-light)', padding: '0.75rem 1rem', borderRadius: '6px', borderLeft: '3px solid var(--accent)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Extraction Status</div>
+                        <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--accent)', marginTop: '0.15rem' }}>
+                          Fields Extracted Successfully
+                        </h4>
+                      </div>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--color-low)', background: 'var(--bg-primary)', padding: '0.25rem 0.5rem', borderRadius: '4px', border: '1px solid var(--border)', fontWeight: 600 }}>
+                        {activeBoxes.length} Entities
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                        Extracted Fields Registry
+                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', maxHeight: '220px', overflowY: 'auto', paddingRight: '0.25rem' }}>
+                        {activeBoxes.map((box) => (
+                          <div 
+                            key={box.id}
+                            onMouseEnter={() => setHoveredField(box)}
+                            style={{ 
+                              display: 'flex', 
+                              justifyContent: 'space-between', 
+                              alignItems: 'center', 
+                              padding: '0.5rem 0.75rem',
+                              background: 'var(--bg-secondary)', 
+                              border: '1px solid var(--border)',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            <span style={{ fontWeight: 600, fontSize: '0.8rem', color: 'var(--text-primary)' }}>{box.name}</span>
+                            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                              <span style={{ fontFamily: 'monospace', fontSize: '0.8rem', color: 'var(--accent)', fontWeight: 'bold' }}>{box.value}</span>
+                              <span style={{ fontSize: '0.7rem', color: 'var(--color-low)', background: 'var(--bg-primary)', padding: '0.1rem 0.35rem', borderRadius: '4px', border: '1px solid var(--border)' }}>
+                                {box.conf}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div style={{ background: 'var(--bg-primary)', padding: '0.75rem', borderRadius: '6px', border: '1px solid var(--border)', color: 'var(--text-secondary)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                      <h4 style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--text-primary)' }}>💡 Live Document Interactive Mapping</h4>
+                      <p style={{ fontSize: '0.73rem', lineHeight: 1.35 }}>
+                        Hover over any row in the extracted fields registry above or point your cursor directly at the dashed orange coordinate bounding boxes on the document card to view real-time OCR engine coordinates and confident JSON scores.
+                      </p>
+                    </div>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
