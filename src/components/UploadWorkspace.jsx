@@ -502,38 +502,37 @@ export default function UploadWorkspace({
 
   const currentDoc = documents.find(d => d.id === selectedDocId);
 
-  // Bounding boxes definitions for visual mock overlay
   const getBoundingBoxes = (docType) => {
     if (docType === "Form 16") {
       return [
-        { id: "pan", name: "Employee PAN", top: "19.5%", left: "75%", width: "15%", height: "4.5%", value: "BHUPR1982M", conf: "99.8%" },
-        { id: "tan", name: "Employer TAN", top: "21.5%", left: "28%", width: "15%", height: "4.5%", value: "MUMT01928E", conf: "99.2%" },
-        { id: "salary", name: "Gross Salary (Sec 17)", top: "31.2%", left: "76%", width: "14%", height: "4.5%", value: "₹18,50,000", conf: "98.5%" },
-        { id: "ded80C", name: "80C Deductions", top: "39.5%", left: "76%", width: "14%", height: "4.5%", value: "₹1,50,000", conf: "97.9%" },
-        { id: "tds", name: "TDS Claimed", top: "86.2%", left: "76%", width: "14%", height: "4.5%", value: "₹1,85,000", conf: "99.5%" }
+        { id: "pan", name: "Employee PAN", top: "18.5%", left: "73%", width: "16%", height: "4.5%", value: "BHUPR1982M", conf: "99.8%" },
+        { id: "tan", name: "Employer TAN", top: "21.5%", left: "28%", width: "16%", height: "4.5%", value: "MUMT01928E", conf: "99.2%" },
+        { id: "salary", name: "Gross Salary (Sec 17)", top: "31.2%", left: "80%", width: "15%", height: "4.5%", value: "₹18,50,000", conf: "98.5%" },
+        { id: "ded80C", name: "80C Deductions", top: "39.5%", left: "80%", width: "15%", height: "4.5%", value: "₹1,50,000", conf: "97.9%" },
+        { id: "tds", name: "TDS Claimed", top: "91%", left: "80%", width: "15%", height: "5%", value: "₹1,85,000", conf: "99.5%" }
       ];
     }
     if (docType === "Invoice") {
       return [
-        { id: "invNo", name: "Invoice No", top: "12%", left: "32%", width: "20%", height: "8%", value: "INV-9281", conf: "99.9%" },
-        { id: "gstin", name: "Vendor GSTIN", top: "25%", left: "32%", width: "40%", height: "8%", value: "27AAACT0012P1ZA", conf: "98.7%" },
-        { id: "base", name: "Base Taxable Value", top: "64%", left: "65%", width: "25%", height: "8%", value: "₹5,00,000", conf: "99.1%" },
-        { id: "cgst", name: "CGST (9%)", top: "74%", left: "65%", width: "25%", height: "8%", value: "₹45,000", conf: "99.0%" },
-        { id: "sgst", name: "SGST (9%)", top: "84%", left: "65%", width: "25%", height: "8%", value: "₹45,000", conf: "99.0%" }
+        { id: "invNo", name: "Invoice No", top: "4.5%", left: "82%", width: "14%", height: "5%", value: "INV-9281", conf: "99.9%" },
+        { id: "gstin", name: "Vendor GSTIN", top: "18.5%", left: "27%", width: "28%", height: "5%", value: "27AAACT0012P1ZA", conf: "98.7%" },
+        { id: "base", name: "Base Taxable Value", top: "70.5%", left: "75%", width: "20%", height: "5%", value: "₹5,00,000", conf: "99.1%" },
+        { id: "cgst", name: "CGST (9%)", top: "76.5%", left: "75%", width: "20%", height: "5%", value: "₹45,000", conf: "99.0%" },
+        { id: "sgst", name: "SGST (9%)", top: "82.5%", left: "75%", width: "20%", height: "5%", value: "₹45,000", conf: "99.0%" }
       ];
     }
     if (docType === "AIS") {
       return [
-        { id: "pan", name: "Assessee PAN", top: "15%", left: "35%", width: "25%", height: "8%", value: "BHUPR1982M", conf: "99.8%" },
-        { id: "salAIS", name: "Salary payments Reflected", top: "44%", left: "65%", width: "25%", height: "8%", value: "₹20,50,000", conf: "99.4%" },
-        { id: "intAIS", name: "Interest Credit Reflected", top: "72%", left: "65%", width: "25%", height: "8%", value: "₹35,000", conf: "98.9%" }
+        { id: "pan", name: "Assessee PAN", top: "14.5%", left: "24%", width: "20%", height: "5%", value: "BHUPR1982M", conf: "99.8%" },
+        { id: "salAIS", name: "Salary payments Reflected", top: "30%", left: "78%", width: "18%", height: "5%", value: "₹20,50,000", conf: "99.4%" },
+        { id: "intAIS", name: "Interest Credit Reflected", top: "47.5%", left: "78%", width: "18%", height: "5%", value: "₹35,000", conf: "98.9%" }
       ];
     }
     if (docType === "Bank Statement") {
       return [
-        { id: "structCash", name: "Structured Cash Deposits", top: "42%", left: "65%", width: "30%", height: "14%", value: "₹19,64,125", conf: "99.1%" },
-        { id: "roundTrip", name: "LLP Round-Trip Credits", top: "66%", left: "65%", width: "30%", height: "14%", value: "₹6,00,000", conf: "98.8%" },
-        { id: "cashWages", name: "Ram Lal Cash Wages", top: "86%", left: "65%", width: "30%", height: "10%", value: "₹14,000", conf: "99.4%" }
+        { id: "structCash", name: "Structured Cash Deposits", top: "26%", left: "4%", width: "92%", height: "14%", value: "₹19,64,125", conf: "99.1%" },
+        { id: "roundTrip", name: "LLP Round-Trip Credits", top: "40%", left: "4%", width: "92%", height: "14%", value: "₹6,00,000", conf: "98.8%" },
+        { id: "cashWages", name: "Ram Lal Cash Wages", top: "54%", left: "4%", width: "92%", height: "14%", value: "₹14,000", conf: "99.4%" }
       ];
     }
     return [];
@@ -818,32 +817,9 @@ export default function UploadWorkspace({
                   SCANNED TAX DOCUMENT
                 </div>
 
-                {/* Overlaid Absolute Bounding Boxes */}
-                {activeBoxes.map((box) => (
-                  <div 
-                    key={box.id}
-                    onMouseEnter={() => setHoveredField(box)}
-                    onMouseLeave={() => setHoveredField(null)}
-                    className="animate-pulse-glow"
-                    style={{ 
-                      position: 'absolute',
-                      top: box.top,
-                      left: box.left,
-                      width: box.width,
-                      height: box.height,
-                      border: hoveredField?.id === box.id ? '2.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                      background: hoveredField?.id === box.id ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.03)',
-                      borderRadius: '4px',
-                      cursor: 'crosshair',
-                      zIndex: 5,
-                      transition: 'all 0.15s ease'
-                    }}
-                  />
-                ))}
-
                 {/* Document layout content emulator */}
                 {currentDoc.type === "Form 16" && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%', border: '1px solid #94a3b8', padding: '1rem', background: '#fff' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%', border: '1px solid #94a3b8', padding: '1rem', background: '#fff', position: 'relative' }}>
                     <div style={{ textAlign: 'center', fontWeight: 'bold', borderBottom: '2px solid #334155', paddingBottom: '0.5rem', fontSize: '0.85rem' }}>
                       FORM NO. 16 - PART B (SALARY CERTIFICATE)
                     </div>
@@ -882,11 +858,34 @@ export default function UploadWorkspace({
                         <strong style={{ color: '#1e3a8a' }}>₹1,85,000</strong>
                       </div>
                     </div>
+
+                    {/* Overlaid Absolute Bounding Boxes */}
+                    {activeBoxes.map((box) => (
+                      <div 
+                        key={box.id}
+                        onMouseEnter={() => setHoveredField(box)}
+                        onMouseLeave={() => setHoveredField(null)}
+                        className="animate-pulse-glow"
+                        style={{ 
+                          position: 'absolute',
+                          top: box.top,
+                          left: box.left,
+                          width: box.width,
+                          height: box.height,
+                          border: hoveredField?.id === box.id ? '2.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                          background: hoveredField?.id === box.id ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.03)',
+                          borderRadius: '4px',
+                          cursor: 'crosshair',
+                          zIndex: 5,
+                          transition: 'all 0.15s ease'
+                        }}
+                      />
+                    ))}
                   </div>
                 )}
 
                 {currentDoc.type === "Invoice" && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', border: '1px solid #94a3b8', padding: '1.25rem', background: '#fff' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', border: '1px solid #94a3b8', padding: '1.25rem', background: '#fff', position: 'relative' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #334155', paddingBottom: '0.5rem' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>TAX INVOICE</span>
                       <span>No: <span style={{ opacity: 0.6 }}>INV-9281</span></span>
@@ -928,11 +927,34 @@ export default function UploadWorkspace({
                         <span>₹5,90,000</span>
                       </div>
                     </div>
+
+                    {/* Overlaid Absolute Bounding Boxes */}
+                    {activeBoxes.map((box) => (
+                      <div 
+                        key={box.id}
+                        onMouseEnter={() => setHoveredField(box)}
+                        onMouseLeave={() => setHoveredField(null)}
+                        className="animate-pulse-glow"
+                        style={{ 
+                          position: 'absolute',
+                          top: box.top,
+                          left: box.left,
+                          width: box.width,
+                          height: box.height,
+                          border: hoveredField?.id === box.id ? '2.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                          background: hoveredField?.id === box.id ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.03)',
+                          borderRadius: '4px',
+                          cursor: 'crosshair',
+                          zIndex: 5,
+                          transition: 'all 0.15s ease'
+                        }}
+                      />
+                    ))}
                   </div>
                 )}
 
                 {currentDoc.type === "AIS" && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', border: '1px solid #94a3b8', padding: '1.25rem', background: '#fff' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', border: '1px solid #94a3b8', padding: '1.25rem', background: '#fff', position: 'relative' }}>
                     <div style={{ textAlign: 'center', fontWeight: 'bold', borderBottom: '2px solid #334155', paddingBottom: '0.5rem', fontSize: '0.85rem' }}>
                       TAX DEPT. ANNUAL INFORMATION STATEMENT (AIS)
                     </div>
@@ -966,11 +988,34 @@ export default function UploadWorkspace({
                         <span style={{ fontSize: '0.65rem', color: '#64748b' }}>Deductor: HDFC Bank Ltd</span>
                       </div>
                     </div>
+
+                    {/* Overlaid Absolute Bounding Boxes */}
+                    {activeBoxes.map((box) => (
+                      <div 
+                        key={box.id}
+                        onMouseEnter={() => setHoveredField(box)}
+                        onMouseLeave={() => setHoveredField(null)}
+                        className="animate-pulse-glow"
+                        style={{ 
+                          position: 'absolute',
+                          top: box.top,
+                          left: box.left,
+                          width: box.width,
+                          height: box.height,
+                          border: hoveredField?.id === box.id ? '2.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                          background: hoveredField?.id === box.id ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.03)',
+                          borderRadius: '4px',
+                          cursor: 'crosshair',
+                          zIndex: 5,
+                          transition: 'all 0.15s ease'
+                        }}
+                      />
+                    ))}
                   </div>
                 )}
 
                 {currentDoc.type === "Bank Statement" && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: '100%', border: '1px solid #94a3b8', padding: '1rem', background: '#fff', overflowY: 'auto' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: '100%', border: '1px solid #94a3b8', padding: '1rem', background: '#fff', overflowY: 'auto', position: 'relative' }}>
                     <div style={{ textAlign: 'center', fontWeight: 'bold', borderBottom: '2px solid #334155', paddingBottom: '0.5rem', fontSize: '0.85rem' }}>
                       CURRENT ACCOUNT DETAILED TRANSACTION LEDGER
                     </div>
@@ -1034,6 +1079,29 @@ export default function UploadWorkspace({
                         </div>
                       </div>
                     </div>
+
+                    {/* Overlaid Absolute Bounding Boxes */}
+                    {activeBoxes.map((box) => (
+                      <div 
+                        key={box.id}
+                        onMouseEnter={() => setHoveredField(box)}
+                        onMouseLeave={() => setHoveredField(null)}
+                        className="animate-pulse-glow"
+                        style={{ 
+                          position: 'absolute',
+                          top: box.top,
+                          left: box.left,
+                          width: box.width,
+                          height: box.height,
+                          border: hoveredField?.id === box.id ? '2.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                          background: hoveredField?.id === box.id ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.03)',
+                          borderRadius: '4px',
+                          cursor: 'crosshair',
+                          zIndex: 5,
+                          transition: 'all 0.15s ease'
+                        }}
+                      />
+                    ))}
                   </div>
                 )}
 
