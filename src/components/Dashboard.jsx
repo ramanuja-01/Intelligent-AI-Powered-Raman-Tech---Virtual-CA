@@ -18,7 +18,8 @@ export default function Dashboard({
   documents, 
   findings, 
   setActiveTab,
-  userRole 
+  userRole,
+  userProfile
 }) {
   const score = activeSession ? activeSession.overallScore : 100;
   
@@ -31,7 +32,7 @@ export default function Dashboard({
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
-
+  
   // Visual text for score
   let scoreText = "Excellent";
   let scoreColorClass = "var(--color-low)"; // green
@@ -46,7 +47,7 @@ export default function Dashboard({
   // Persona-specific titles & configurations
   const personaConfigurations = {
     individual: {
-      subHeader: "Individual Taxpayer Portal — Ramanuja Pathy (RAMAN) (Smart Pre-Filing)",
+      subHeader: `Individual Taxpayer Portal — ${userProfile?.fullName || "Ramanuja Pathy (RAMAN)"} (Smart Pre-Filing)`,
       metric1Label: "Tax Credit (TDS) Alignment",
       metric1Value: activeSession ? "₹1,65,000 credited" : "No active filings",
       metric2Label: "Chapter VI-A Claims",
@@ -80,7 +81,7 @@ export default function Dashboard({
       )
     },
     sme: {
-      subHeader: "SME Compliance Desk — Raman Tech Enterprises (Corporate Portal)",
+      subHeader: `SME Compliance Desk — ${activeSession?.sessionName ? (activeSession.sessionName.replace("GST ITC & Vendor Audit - ", "").replace("Current Account Audit - ", "") || "Raman Tech Enterprises") : "Raman Tech Enterprises"} (Corporate Portal)`,
       metric1Label: "Unclaimed GST Input (ITC)",
       metric1Value: activeSession ? "₹90,000 asset leakage" : "₹0 tracked",
       metric2Label: "Section 43B(h) Payable Age",
@@ -114,7 +115,7 @@ export default function Dashboard({
       )
     },
     ca: {
-      subHeader: "CA Professional Workspace — CA Ramanuja Pathy (RAMAN) (Enterprise Console)",
+      subHeader: `CA Professional Workspace — CA ${userProfile?.fullName || "Ramanuja Pathy (RAMAN)"} (Enterprise Console)`,
       metric1Label: "Critical Risk Vectors",
       metric1Value: activeSession ? "Unexplained deposits + Smurfing" : "Clean risk index",
       metric2Label: "Client Form 3CD Compliance",
@@ -142,7 +143,7 @@ export default function Dashboard({
       )
     },
     accountant: {
-      subHeader: "Consultant Desk — Raman Bookkeeping & Bank Ledger Audit",
+      subHeader: `Consultant Desk — ${userProfile?.fullName?.split(" ")[0] || "Raman"} Bookkeeping & Bank Ledger Audit`,
       metric1Label: "Voucher Match Completeness",
       metric1Value: activeSession ? "120 book vouchers matching" : "0 vouchers audited",
       metric2Label: "Interest Schedules Extracted",

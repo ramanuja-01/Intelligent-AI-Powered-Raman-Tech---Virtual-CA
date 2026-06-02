@@ -13,6 +13,76 @@ import {
 } from 'lucide-react';
 import { parseBankStatementCSV, auditParsedTransactions } from '../utils/csvParser';
 
+// Dynamic File Name Parser & Metadata Extractor
+const extractMetadataFromFilename = (filename, type, userProfile) => {
+  const cleanName = filename.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+  
+  // Default values
+  let employeeName = userProfile?.fullName || "Ramanuja Pathy (RAMAN)";
+  let employerName = "Raman Tech Corp";
+  let employeePan = "BHUPR1982M";
+  let employerPan = "AAACR0192A";
+  let employerTan = "MUMT01928E";
+  let accountName = userProfile?.fullName || "Raman Tech Enterprises";
+  let sellerName = "TechBrands Solutions Ltd";
+  let vendorGstin = "27AAACT0012P1ZA";
+  let invoiceNo = "INV-" + Math.floor(1000 + Math.random() * 9000);
+  let accountNo = "502000" + Math.floor(10000000 + Math.random() * 90000000);
+
+  // Look for PAN pattern (e.g. ABCDE1234F)
+  const panRegex = /[A-Z]{5}[0-9]{4}[A-Z]/i;
+  const panMatch = cleanName.match(panRegex);
+  if (panMatch) {
+    employeePan = panMatch[0].toUpperCase();
+  }
+
+  // Look for GSTIN pattern
+  const gstinRegex = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z][Z][0-9A-Z]/i;
+  const gstinMatch = cleanName.match(gstinRegex);
+  if (gstinMatch) {
+    vendorGstin = gstinMatch[0].toUpperCase();
+  }
+
+  // Split words to see if we can identify employer and employee name
+  const words = cleanName.split(/\s+/).filter(w => w.length > 1);
+  
+  // Known company keywords
+  const companies = ["tcs", "infosys", "wipro", "google", "microsoft", "amazon", "reliance", "tata", "hdfc", "techbrands", "salesforce", "meta", "tesla"];
+  
+  // Filter out standard document type keywords
+  const stopWords = ["form", "16", "form16", "ais", "statement", "bank", "invoice", "ledger", "tax", "audit", "slip", "payslip", "pdf", "csv", "png", "jpg", "jpeg", "uploaded", "financial", "year", "fy", "ay"];
+  
+  const filteredWords = words.filter(w => !stopWords.includes(w.toLowerCase()));
+
+  // Attempt to extract employer
+  const companyWord = filteredWords.find(w => companies.includes(w.toLowerCase()));
+  if (companyWord) {
+    employerName = companyWord.toUpperCase() + " Corp";
+    sellerName = companyWord.toUpperCase() + " Solutions Ltd";
+  }
+
+  // The remaining filtered words can be the employee/account name
+  const nameWords = filteredWords.filter(w => !companies.includes(w.toLowerCase()));
+  if (nameWords.length > 0) {
+    const parsedName = nameWords.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    employeeName = parsedName;
+    accountName = parsedName;
+  }
+
+  return {
+    employeeName,
+    employerName,
+    employeePan,
+    employerPan,
+    employerTan,
+    accountName,
+    sellerName,
+    vendorGstin,
+    invoiceNo,
+    accountNo
+  };
+};
+
 export default function UploadWorkspace({ 
   documents, 
   setDocuments, 
@@ -20,7 +90,8 @@ export default function UploadWorkspace({
   setActiveSession,
   setAuditLogs,
   auditLogs,
-  userRole
+  userRole,
+  userProfile
 }) {
   const [consent, setConsent] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -31,6 +102,7 @@ export default function UploadWorkspace({
   // OCR Bounding Box Inspector State
   const [selectedDocId, setSelectedDocId] = useState("");
   const [hoveredField, setHoveredField] = useState(null);
+  const [selectedField, setSelectedField] = useState(null);
 
   const logEvent = (action, details) => {
     const newLog = {
@@ -94,6 +166,16 @@ export default function UploadWorkspace({
 
             // Construct new document object
             const docId = `doc-parsed-${Date.now()}`;
+            const meta = extractMetadataFromFilename(file.name, 'Bank Statement', userProfile);
+
+            const totalRoundTripVal = auditResult.findings
+              .filter(f => f.id.includes("roundtrip"))
+              .reduce((s, f) => s + (f.amountMismatch?.actual || 0), 0);
+
+            const totalCashWagesVal = auditResult.findings
+              .filter(f => f.id.includes("cashlimit"))
+              .reduce((s, f) => s + (f.amountMismatch?.actual || 0), 0);
+
             const newDoc = {
               id: docId,
               name: file.name,
@@ -104,9 +186,11 @@ export default function UploadWorkspace({
                 totalDeposits: parsedTransactions.reduce((s, t) => s + t.credit, 0),
                 totalWithdrawals: parsedTransactions.reduce((s, t) => s + t.debit, 0),
                 entries: parsedTransactions.length,
-                accountName: "Audited Ledger - " + file.name.replace(/\.[^/.]+$/, ""),
-                accountNo: `502000${Math.floor(10000000 + Math.random() * 90000000)}`,
-                bank: "Parsed Statement Bank"
+                accountName: meta.accountName,
+                accountNo: meta.accountNo,
+                bank: "Parsed Statement Bank",
+                roundTripValue: totalRoundTripVal,
+                cashWagesValue: totalCashWagesVal
               },
               transactions: parsedTransactions
             };
@@ -169,6 +253,7 @@ export default function UploadWorkspace({
           if (fn.includes('bank') || fn.includes('statement') || fn.includes('account')) {
             // HDFC Bank Current Account exposure package
             docId = `doc-bank-${Date.now()}`;
+            const meta = extractMetadataFromFilename(file.name, 'Bank Statement', userProfile);
             const newDoc = {
               id: docId,
               name: file.name,
@@ -179,9 +264,11 @@ export default function UploadWorkspace({
                 totalDeposits: 1964125,
                 totalWithdrawals: 256000,
                 entries: 6,
-                accountName: "Raman Tech Enterprises",
-                accountNo: "50200019283741",
-                bank: "HDFC Bank Current A/c"
+                accountName: meta.accountName,
+                accountNo: meta.accountNo,
+                bank: "HDFC Bank Current A/c",
+                roundTripValue: 600000,
+                cashWagesValue: 14000
               },
               transactions: [
                 { date: "12-Aug-2025", description: "Cash Deposit Branch", debit: 0, credit: 490626 },
@@ -282,6 +369,7 @@ export default function UploadWorkspace({
           } else if (fn.includes('invoice') || fn.includes('ledger') || fn.includes('gst')) {
             // GST CGST Section 16 Input Tax expensing mismatch package
             docId = `doc-invoice-${Date.now()}`;
+            const meta = extractMetadataFromFilename(file.name, 'Invoice', userProfile);
             const newDoc = {
               id: docId,
               name: file.name,
@@ -289,9 +377,9 @@ export default function UploadWorkspace({
               size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
               uploadedAt: new Date().toISOString(),
               extractedData: {
-                invoiceNo: "INV-9281",
-                vendorGstin: "27AAACT0012P1ZA",
-                sellerName: "TechBrands Solutions Ltd",
+                invoiceNo: meta.invoiceNo,
+                vendorGstin: meta.vendorGstin,
+                sellerName: meta.sellerName,
                 baseValue: 500000,
                 cgst: 45000,
                 sgst: 45000,
@@ -369,6 +457,7 @@ export default function UploadWorkspace({
             // Fallback / "form 16" / "salary" / "tax" -> Form 16 vs AIS Gross Salary and TDS credit mismatch package
             const form16DocId = `doc-form16-${Date.now()}`;
             const aisDocId = `doc-ais-${Date.now()}`;
+            const meta = extractMetadataFromFilename(file.name, 'Form 16', userProfile);
 
             const form16Doc = {
               id: form16DocId,
@@ -377,11 +466,11 @@ export default function UploadWorkspace({
               size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
               uploadedAt: new Date().toISOString(),
               extractedData: {
-                employeePan: "BHUPR1982M",
-                employerTan: "MUMT01928E",
-                employerName: "Raman Tech Corp",
-                employeeName: "Ramanuja Pathy (RAMAN)",
-                employerPan: "AAACR0192A",
+                employeePan: meta.employeePan,
+                employerTan: meta.employerTan,
+                employerName: meta.employerName,
+                employeeName: meta.employeeName,
+                employerPan: meta.employerPan,
                 grossSalary: 1850000,
                 deductions80C: 150000,
                 tdsClaimed: 185000
@@ -395,10 +484,10 @@ export default function UploadWorkspace({
               size: "0.45 MB",
               uploadedAt: new Date().toISOString(),
               extractedData: {
-                assesseePan: "BHUPR1982M",
+                assesseePan: meta.employeePan,
                 salaryAis: 2050000,
                 interestAis: 35000,
-                deductorName: "Raman Tech Corp"
+                deductorName: meta.employerName
               }
             };
 
@@ -552,7 +641,8 @@ export default function UploadWorkspace({
     });
 
     setDocuments(updatedDocs);
-    setHoveredField(prev => prev ? { ...prev, value: newValue } : null);
+    setHoveredField(prev => prev && prev.id === fieldId ? { ...prev, value: newValue } : prev);
+    setSelectedField(prev => prev && prev.id === fieldId ? { ...prev, value: newValue } : prev);
 
     const activeDoc = updatedDocs.find(d => d.id === selectedDocId);
     if (activeDoc) {
@@ -623,6 +713,7 @@ export default function UploadWorkspace({
     setActivePkgId("");
     setSelectedDocId("");
     setHoveredField(null);
+    setSelectedField(null);
     logEvent("Workspace Cleared", "All documents and findings cleared from browser memory.");
   };
 
@@ -638,6 +729,7 @@ export default function UploadWorkspace({
       setActivePkgId("");
       setSelectedDocId("");
       setHoveredField(null);
+      setSelectedField(null);
     } else {
       if (selectedDocId === docId) {
         setSelectedDocId(updated[0].id);
@@ -989,15 +1081,16 @@ export default function UploadWorkspace({
                         <span 
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'employerName'))}
                           onMouseLeave={() => setHoveredField(null)}
+                          onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'employerName'))}
                           style={{ 
                             fontWeight: 600,
                             display: 'inline-block',
                             position: 'relative', 
                             padding: '0.05rem 0.25rem',
-                            border: hoveredField?.id === 'employerName' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                            background: hoveredField?.id === 'employerName' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            border: (selectedField?.id === 'employerName' || hoveredField?.id === 'employerName') ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: (selectedField?.id === 'employerName' || hoveredField?.id === 'employerName') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
                             borderRadius: '4px',
-                            cursor: 'crosshair'
+                            cursor: 'pointer'
                           }}
                         >
                           {currentDoc.extractedData?.employerName || "Raman Tech Corp"}
@@ -1007,15 +1100,16 @@ export default function UploadWorkspace({
                         <span 
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'employerPan'))}
                           onMouseLeave={() => setHoveredField(null)}
+                          onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'employerPan'))}
                           style={{ 
                             fontWeight: 600,
                             display: 'inline-block',
                             position: 'relative', 
                             padding: '0.05rem 0.25rem',
-                            border: hoveredField?.id === 'employerPan' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                            background: hoveredField?.id === 'employerPan' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            border: (selectedField?.id === 'employerPan' || hoveredField?.id === 'employerPan') ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: (selectedField?.id === 'employerPan' || hoveredField?.id === 'employerPan') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
                             borderRadius: '4px',
-                            cursor: 'crosshair'
+                            cursor: 'pointer'
                           }}
                         >
                           {currentDoc.extractedData?.employerPan || "AAACR0192A"}
@@ -1025,15 +1119,16 @@ export default function UploadWorkspace({
                         <span 
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'tan'))}
                           onMouseLeave={() => setHoveredField(null)}
+                          onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'tan'))}
                           style={{ 
                             fontWeight: 600,
                             display: 'inline-block',
                             position: 'relative', 
                             padding: '0.05rem 0.25rem',
-                            border: hoveredField?.id === 'tan' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                            background: hoveredField?.id === 'tan' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            border: (selectedField?.id === 'tan' || hoveredField?.id === 'tan') ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: (selectedField?.id === 'tan' || hoveredField?.id === 'tan') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
                             borderRadius: '4px',
-                            cursor: 'crosshair'
+                            cursor: 'pointer'
                           }}
                         >
                           {currentDoc.extractedData?.employerTan || "MUMT01928E"}
@@ -1044,15 +1139,16 @@ export default function UploadWorkspace({
                         <span 
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'employeeName'))}
                           onMouseLeave={() => setHoveredField(null)}
+                          onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'employeeName'))}
                           style={{ 
                             fontWeight: 600,
                             display: 'inline-block',
                             position: 'relative', 
                             padding: '0.05rem 0.25rem',
-                            border: hoveredField?.id === 'employeeName' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                            background: hoveredField?.id === 'employeeName' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            border: (selectedField?.id === 'employeeName' || hoveredField?.id === 'employeeName') ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: (selectedField?.id === 'employeeName' || hoveredField?.id === 'employeeName') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
                             borderRadius: '4px',
-                            cursor: 'crosshair'
+                            cursor: 'pointer'
                           }}
                         >
                           {currentDoc.extractedData?.employeeName || "Ramanuja Pathy (RAMAN)"}
@@ -1062,15 +1158,16 @@ export default function UploadWorkspace({
                         <span 
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'pan'))}
                           onMouseLeave={() => setHoveredField(null)}
+                          onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'pan'))}
                           style={{ 
                             fontWeight: 600,
                             display: 'inline-block',
                             position: 'relative', 
                             padding: '0.05rem 0.25rem',
-                            border: hoveredField?.id === 'pan' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                            background: hoveredField?.id === 'pan' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            border: (selectedField?.id === 'pan' || hoveredField?.id === 'pan') ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: (selectedField?.id === 'pan' || hoveredField?.id === 'pan') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
                             borderRadius: '4px',
-                            cursor: 'crosshair'
+                            cursor: 'pointer'
                           }}
                         >
                           {currentDoc.extractedData?.employeePan || "BHUPR1982M"}
@@ -1084,14 +1181,15 @@ export default function UploadWorkspace({
                         <span 
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'salary'))}
                           onMouseLeave={() => setHoveredField(null)}
+                          onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'salary'))}
                           style={{ 
                             fontWeight: 'bold', 
                             position: 'relative', 
                             padding: '0.05rem 0.25rem',
-                            border: hoveredField?.id === 'salary' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                            background: hoveredField?.id === 'salary' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            border: (selectedField?.id === 'salary' || hoveredField?.id === 'salary') ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: (selectedField?.id === 'salary' || hoveredField?.id === 'salary') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
                             borderRadius: '4px',
-                            cursor: 'crosshair'
+                            cursor: 'pointer'
                           }}
                         >
                           {currentDoc.extractedData?.grossSalary !== undefined ? `₹${currentDoc.extractedData.grossSalary.toLocaleString('en-IN')}` : "₹18,50,000"}
@@ -1102,14 +1200,15 @@ export default function UploadWorkspace({
                         <span 
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'stdDed'))}
                           onMouseLeave={() => setHoveredField(null)}
+                          onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'stdDed'))}
                           style={{ 
                             fontWeight: 'bold', 
                             position: 'relative', 
                             padding: '0.05rem 0.25rem',
-                            border: hoveredField?.id === 'stdDed' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                            background: hoveredField?.id === 'stdDed' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            border: (selectedField?.id === 'stdDed' || hoveredField?.id === 'stdDed') ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: (selectedField?.id === 'stdDed' || hoveredField?.id === 'stdDed') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
                             borderRadius: '4px',
-                            cursor: 'crosshair'
+                            cursor: 'pointer'
                           }}
                         >
                           {currentDoc.extractedData?.standardDeduction !== undefined ? `₹${currentDoc.extractedData.standardDeduction.toLocaleString('en-IN')}` : "₹50,000"}
@@ -1120,14 +1219,15 @@ export default function UploadWorkspace({
                         <span 
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'ded80C'))}
                           onMouseLeave={() => setHoveredField(null)}
+                          onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'ded80C'))}
                           style={{ 
                             fontWeight: 'bold', 
                             position: 'relative', 
                             padding: '0.05rem 0.25rem',
-                            border: hoveredField?.id === 'ded80C' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                            background: hoveredField?.id === 'ded80C' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            border: (selectedField?.id === 'ded80C' || hoveredField?.id === 'ded80C') ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: (selectedField?.id === 'ded80C' || hoveredField?.id === 'ded80C') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
                             borderRadius: '4px',
-                            cursor: 'crosshair'
+                            cursor: 'pointer'
                           }}
                         >
                           {currentDoc.extractedData?.deductions80C !== undefined ? `₹${currentDoc.extractedData.deductions80C.toLocaleString('en-IN')}` : "₹1,50,000"}
@@ -1138,14 +1238,15 @@ export default function UploadWorkspace({
                         <span 
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'ded80D'))}
                           onMouseLeave={() => setHoveredField(null)}
+                          onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'ded80D'))}
                           style={{ 
                             fontWeight: 'bold', 
                             position: 'relative', 
                             padding: '0.05rem 0.25rem',
-                            border: hoveredField?.id === 'ded80D' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                            background: hoveredField?.id === 'ded80D' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            border: (selectedField?.id === 'ded80D' || hoveredField?.id === 'ded80D') ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: (selectedField?.id === 'ded80D' || hoveredField?.id === 'ded80D') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
                             borderRadius: '4px',
-                            cursor: 'crosshair'
+                            cursor: 'pointer'
                           }}
                         >
                           {currentDoc.extractedData?.deductions80D !== undefined ? `₹${currentDoc.extractedData.deductions80D.toLocaleString('en-IN')}` : "₹50,000"}
@@ -1156,14 +1257,15 @@ export default function UploadWorkspace({
                         <span 
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'tds'))}
                           onMouseLeave={() => setHoveredField(null)}
+                          onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'tds'))}
                           style={{ 
                             fontWeight: 'bold', 
                             position: 'relative', 
                             padding: '0.05rem 0.25rem',
-                            border: hoveredField?.id === 'tds' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                            background: hoveredField?.id === 'tds' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            border: (selectedField?.id === 'tds' || hoveredField?.id === 'tds') ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: (selectedField?.id === 'tds' || hoveredField?.id === 'tds') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
                             borderRadius: '4px',
-                            cursor: 'crosshair',
+                            cursor: 'pointer',
                             color: '#1e3a8a'
                           }}
                         >
@@ -1241,6 +1343,7 @@ export default function UploadWorkspace({
                         key={box.id}
                         onMouseEnter={() => setHoveredField(box)}
                         onMouseLeave={() => setHoveredField(null)}
+                        onClick={() => setSelectedField(box)}
                         className="animate-pulse-glow"
                         style={{ 
                           position: 'absolute',
@@ -1248,10 +1351,10 @@ export default function UploadWorkspace({
                           left: box.left,
                           width: box.width,
                           height: box.height,
-                          border: hoveredField?.id === box.id ? '2.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                          background: hoveredField?.id === box.id ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.03)',
+                          border: (selectedField?.id === box.id || hoveredField?.id === box.id) ? '2.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                          background: (selectedField?.id === box.id || hoveredField?.id === box.id) ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.03)',
                           borderRadius: '4px',
-                          cursor: 'crosshair',
+                          cursor: 'pointer',
                           zIndex: 5,
                           transition: 'all 0.15s ease'
                         }}
@@ -1289,15 +1392,16 @@ export default function UploadWorkspace({
                           <span
                             onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'deductorName'))}
                             onMouseLeave={() => setHoveredField(null)}
+                            onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'deductorName'))}
                             style={{ 
                               fontWeight: 600,
                               display: 'inline-block',
                               position: 'relative', 
                               padding: '0.02rem 0.2rem',
-                              border: hoveredField?.id === 'deductorName' ? '1px solid var(--accent)' : '1px dashed var(--color-high)',
-                              background: hoveredField?.id === 'deductorName' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.01)',
+                              border: (selectedField?.id === 'deductorName' || hoveredField?.id === 'deductorName') ? '1px solid var(--accent)' : '1px dashed var(--color-high)',
+                              background: (selectedField?.id === 'deductorName' || hoveredField?.id === 'deductorName') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.01)',
                               borderRadius: '3px',
-                              cursor: 'crosshair'
+                              cursor: 'pointer'
                             }}
                           >
                             {currentDoc.extractedData?.deductorName || "Raman Tech Corp"}
@@ -1320,6 +1424,7 @@ export default function UploadWorkspace({
                         key={box.id}
                         onMouseEnter={() => setHoveredField(box)}
                         onMouseLeave={() => setHoveredField(null)}
+                        onClick={() => setSelectedField(box)}
                         className="animate-pulse-glow"
                         style={{ 
                           position: 'absolute',
@@ -1327,10 +1432,10 @@ export default function UploadWorkspace({
                           left: box.left,
                           width: box.width,
                           height: box.height,
-                          border: hoveredField?.id === box.id ? '2.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                          background: hoveredField?.id === box.id ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.03)',
+                          border: (selectedField?.id === box.id || hoveredField?.id === box.id) ? '2.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                          background: (selectedField?.id === box.id || hoveredField?.id === box.id) ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.03)',
                           borderRadius: '4px',
-                          cursor: 'crosshair',
+                          cursor: 'pointer',
                           zIndex: 5,
                           transition: 'all 0.15s ease'
                         }}
@@ -1351,15 +1456,16 @@ export default function UploadWorkspace({
                         <span
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'accountName'))}
                           onMouseLeave={() => setHoveredField(null)}
+                          onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'accountName'))}
                           style={{ 
                             fontWeight: 600,
                             display: 'inline-block',
                             position: 'relative', 
                             padding: '0.02rem 0.2rem',
-                            border: hoveredField?.id === 'accountName' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                            background: hoveredField?.id === 'accountName' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.01)',
+                            border: (selectedField?.id === 'accountName' || hoveredField?.id === 'accountName') ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: (selectedField?.id === 'accountName' || hoveredField?.id === 'accountName') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.01)',
                             borderRadius: '3px',
-                            cursor: 'crosshair'
+                            cursor: 'pointer'
                           }}
                         >
                           {currentDoc.extractedData?.accountName || "Raman Tech Enterprises"}
@@ -1369,15 +1475,16 @@ export default function UploadWorkspace({
                         <span
                           onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'accountNo'))}
                           onMouseLeave={() => setHoveredField(null)}
+                          onClick={() => setSelectedField(activeBoxes.find(b => b.id === 'accountNo'))}
                           style={{ 
                             fontWeight: 600,
                             display: 'inline-block',
                             position: 'relative', 
                             padding: '0.02rem 0.2rem',
-                            border: hoveredField?.id === 'accountNo' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                            background: hoveredField?.id === 'accountNo' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.01)',
+                            border: (selectedField?.id === 'accountNo' || hoveredField?.id === 'accountNo') ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: (selectedField?.id === 'accountNo' || hoveredField?.id === 'accountNo') ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.01)',
                             borderRadius: '3px',
-                            cursor: 'crosshair'
+                            cursor: 'pointer'
                           }}
                         >
                           {currentDoc.extractedData?.accountNo || "50200019283741"}
@@ -1458,6 +1565,7 @@ export default function UploadWorkspace({
                         key={box.id}
                         onMouseEnter={() => setHoveredField(box)}
                         onMouseLeave={() => setHoveredField(null)}
+                        onClick={() => setSelectedField(box)}
                         className="animate-pulse-glow"
                         style={{ 
                           position: 'absolute',
@@ -1465,10 +1573,10 @@ export default function UploadWorkspace({
                           left: box.left,
                           width: box.width,
                           height: box.height,
-                          border: hoveredField?.id === box.id ? '2.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
-                          background: hoveredField?.id === box.id ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.03)',
+                          border: (selectedField?.id === box.id || hoveredField?.id === box.id) ? '2.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                          background: (selectedField?.id === box.id || hoveredField?.id === box.id) ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.03)',
                           borderRadius: '4px',
-                          cursor: 'crosshair',
+                          cursor: 'pointer',
                           zIndex: 5,
                           transition: 'all 0.15s ease'
                         }}
@@ -1487,7 +1595,7 @@ export default function UploadWorkspace({
               </span>
 
               <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.25rem', height: 'fit-content' }}>
-                {!hoveredField ? (
+                {!selectedField && !hoveredField ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', padding: '0.5rem' }}>
                     <div style={{ background: 'var(--accent-light)', padding: '0.75rem 1rem', borderRadius: '6px', borderLeft: '3px solid var(--accent)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
@@ -1510,13 +1618,15 @@ export default function UploadWorkspace({
                           <div 
                             key={box.id}
                             onMouseEnter={() => setHoveredField(box)}
+                            onMouseLeave={() => setHoveredField(null)}
+                            onClick={() => setSelectedField(box)}
                             style={{ 
                               display: 'flex', 
                               justifyContent: 'space-between', 
                               alignItems: 'center', 
                               padding: '0.5rem 0.75rem',
-                              background: 'var(--bg-secondary)', 
-                              border: '1px solid var(--border)',
+                              background: selectedField?.id === box.id ? 'var(--accent-glow)' : 'var(--bg-secondary)', 
+                              border: selectedField?.id === box.id ? '1px solid var(--accent)' : '1px solid var(--border)',
                               borderRadius: '6px',
                               cursor: 'pointer',
                               transition: 'all 0.15s ease'
@@ -1537,18 +1647,45 @@ export default function UploadWorkspace({
                     <div style={{ background: 'var(--bg-primary)', padding: '0.75rem', borderRadius: '6px', border: '1px solid var(--border)', color: 'var(--text-secondary)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                       <h4 style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--text-primary)' }}>💡 Live Document Interactive Mapping</h4>
                       <p style={{ fontSize: '0.73rem', lineHeight: 1.35 }}>
-                        Hover over any row in the extracted fields registry above or point your cursor directly at the dashed orange coordinate bounding boxes on the document card to view real-time OCR engine coordinates and confident JSON scores.
+                        Click on any row in the extracted fields registry above or click directly on the dashed orange coordinate bounding boxes on the document card to focus and manually correct/override the OCR values.
                       </p>
                     </div>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     
-                    <div style={{ background: 'var(--accent-light)', padding: '0.75rem 1rem', borderRadius: '6px', borderLeft: '3px solid var(--accent)' }}>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Active Entity Target</div>
-                      <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent)', marginTop: '0.15rem' }}>
-                        {hoveredField.name}
-                      </h4>
+                    <div style={{ background: 'var(--accent-light)', padding: '0.75rem 1rem', borderRadius: '6px', borderLeft: '3px solid var(--accent)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Active Entity Target</div>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent)', marginTop: '0.15rem' }}>
+                          {(selectedField || hoveredField).name}
+                        </h4>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setSelectedField(null);
+                          setHoveredField(null);
+                        }}
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid var(--color-high)',
+                          color: 'var(--color-high)',
+                          cursor: 'pointer',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '4px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = 'rgba(239, 68, 68, 0.2)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = 'rgba(239, 68, 68, 0.1)';
+                        }}
+                      >
+                        ✕ Close Editor
+                      </button>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem' }}>
@@ -1556,8 +1693,8 @@ export default function UploadWorkspace({
                         <span style={{ color: 'var(--text-secondary)', fontWeight: 500, fontSize: '0.75rem' }}>Extracted Field Value (Editable Override)</span>
                         <input 
                           type="text"
-                          value={hoveredField.value}
-                          onChange={(e) => handleUpdateFieldValue(hoveredField.id, e.target.value)}
+                          value={(selectedField || hoveredField).value}
+                          onChange={(e) => handleUpdateFieldValue((selectedField || hoveredField).id, e.target.value)}
                           style={{ 
                             background: 'var(--bg-primary)', 
                             border: '1.5px solid var(--accent)', 
@@ -1571,12 +1708,13 @@ export default function UploadWorkspace({
                             outline: 'none',
                             marginTop: '0.2rem'
                           }}
+                          autoFocus={!!selectedField}
                         />
                       </div>
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '0.4rem' }}>
                         <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>OCR Engine Confidence</span>
-                        <strong style={{ color: 'var(--color-low)' }}>{hoveredField.conf}</strong>
+                        <strong style={{ color: 'var(--color-low)' }}>{(selectedField || hoveredField).conf}</strong>
                       </div>
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '0.4rem' }}>
@@ -1587,7 +1725,7 @@ export default function UploadWorkspace({
                       <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '0.4rem' }}>
                         <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Target Index Key</span>
                         <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                          doc.extractedData.{hoveredField.id}
+                          doc.extractedData.{(selectedField || hoveredField).id}
                         </span>
                       </div>
                     </div>
@@ -1597,14 +1735,14 @@ export default function UploadWorkspace({
                       <pre style={{ fontSize: '0.68rem', overflowX: 'auto', fontFamily: 'monospace', color: 'var(--text-secondary)' }}>
 {`{
   "boundingBox": {
-    "top": "${hoveredField.top}",
-    "left": "${hoveredField.left}",
-    "width": "${hoveredField.width}",
-    "height": "${hoveredField.height}"
+    "top": "${(selectedField || hoveredField).top}",
+    "left": "${(selectedField || hoveredField).left}",
+    "width": "${(selectedField || hoveredField).width}",
+    "height": "${(selectedField || hoveredField).height}"
   },
-  "confidence": ${hoveredField.conf.replace('%', '') / 100},
-  "field": "${hoveredField.id}",
-  "value": "${hoveredField.value}"
+  "confidence": ${(selectedField || hoveredField).conf.replace('%', '') / 100},
+  "field": "${(selectedField || hoveredField).id}",
+  "value": "${(selectedField || hoveredField).value}"
 }`}
                       </pre>
                     </div>

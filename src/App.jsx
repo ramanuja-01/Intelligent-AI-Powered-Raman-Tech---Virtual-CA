@@ -578,6 +578,7 @@ export default function App() {
             findings={findings} 
             setActiveTab={setActiveTab}
             userRole={userRole}
+            userProfile={userProfile}
           />
         )}
 
@@ -590,6 +591,7 @@ export default function App() {
             setAuditLogs={setAuditLogs}
             auditLogs={auditLogs}
             userRole={userRole}
+            userProfile={userProfile}
           />
         )}
 
