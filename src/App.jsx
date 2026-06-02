@@ -8,6 +8,7 @@ import ComplianceChecklist from './components/ComplianceChecklist';
 import RiskHeatmap from './components/RiskHeatmap';
 import ReportExport from './components/ReportExport';
 import Settings from './components/Settings';
+import TaxOptimizer from './components/TaxOptimizer';
 import { 
   Sparkles, 
   ShieldCheck, 
@@ -603,6 +604,16 @@ export default function App() {
           <CrossReconciliation 
             activeSession={activeSession} 
             documents={documents}
+          />
+        )}
+
+        {activeTab === 'optimizer' && (
+          <TaxOptimizer 
+            activeSession={activeSession} 
+            documents={documents}
+            findings={findings}
+            userRole={userRole}
+            logEvent={logEvent}
           />
         )}
 

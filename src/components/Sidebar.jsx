@@ -26,6 +26,7 @@ export default function Sidebar({
     { id: 'upload', label: 'Upload Workspace', icon: UploadCloud },
     { id: 'findings', label: 'AI Audit Findings', icon: ShieldAlert },
     { id: 'reconciliation', label: 'Value Reconciliation', icon: Scale },
+    { id: 'optimizer', label: 'Tax Optimizer', icon: Sparkles },
     { id: 'checklist', label: 'Compliance Checklist', icon: FileCheck2 },
     { id: 'heatmap', label: 'Risk Heatmap', icon: Grid3X3 },
     { id: 'report', label: 'Download Report', icon: FileDown },
