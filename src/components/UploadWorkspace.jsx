@@ -506,11 +506,11 @@ export default function UploadWorkspace({
   const getBoundingBoxes = (docType) => {
     if (docType === "Form 16") {
       return [
-        { id: "pan", name: "Employee PAN", top: "16%", left: "38%", width: "22%", height: "8%", value: "BHUPR1982M", conf: "99.8%" },
-        { id: "tan", name: "Employer TAN", top: "16%", left: "68%", width: "22%", height: "8%", value: "MUMT01928E", conf: "99.2%" },
-        { id: "salary", name: "Gross Salary (Sec 17)", top: "42%", left: "65%", width: "25%", height: "8%", value: "₹18,50,000", conf: "98.5%" },
-        { id: "ded80C", name: "80C Deductions", top: "66%", left: "65%", width: "25%", height: "8%", value: "₹1,50,000", conf: "97.9%" },
-        { id: "tds", name: "TDS Claimed", top: "86%", left: "65%", width: "25%", height: "8%", value: "₹1,85,000", conf: "99.5%" }
+        { id: "pan", name: "Employee PAN", top: "19.5%", left: "75%", width: "15%", height: "4.5%", value: "BHUPR1982M", conf: "99.8%" },
+        { id: "tan", name: "Employer TAN", top: "21.5%", left: "28%", width: "15%", height: "4.5%", value: "MUMT01928E", conf: "99.2%" },
+        { id: "salary", name: "Gross Salary (Sec 17)", top: "31.2%", left: "76%", width: "14%", height: "4.5%", value: "₹18,50,000", conf: "98.5%" },
+        { id: "ded80C", name: "80C Deductions", top: "39.5%", left: "76%", width: "14%", height: "4.5%", value: "₹1,50,000", conf: "97.9%" },
+        { id: "tds", name: "TDS Claimed", top: "86.2%", left: "76%", width: "14%", height: "4.5%", value: "₹1,85,000", conf: "99.5%" }
       ];
     }
     if (docType === "Invoice") {
