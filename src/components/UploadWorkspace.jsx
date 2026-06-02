@@ -490,6 +490,132 @@ export default function UploadWorkspace({
     }
   };
 
+  const handleUpdateFieldValue = (fieldId, newValue) => {
+    if (!currentDoc) return;
+    
+    // Clean value if it needs to be numeric
+    let parsedVal = newValue;
+    const numericFields = ['salary', 'ded80C', 'ded80D', 'stdDed', 'tds', 'base', 'cgst', 'sgst', 'salAIS', 'intAIS', 'structCash'];
+    if (numericFields.includes(fieldId)) {
+      const cleaned = newValue.replace(/[^0-9.-]/g, '');
+      parsedVal = cleaned ? parseFloat(cleaned) || 0 : 0;
+    }
+
+    const keyMap = {
+      employerName: 'employerName',
+      employeeName: 'employeeName',
+      employerPan: 'employerPan',
+      pan: 'employeePan',
+      tan: 'employerTan',
+      salary: 'grossSalary',
+      ded80C: 'deductions80C',
+      ded80D: 'deductions80D',
+      stdDed: 'standardDeduction',
+      tds: 'tdsClaimed',
+      invNo: 'invoiceNo',
+      sellerName: 'sellerName',
+      gstin: 'vendorGstin',
+      base: 'baseValue',
+      cgst: 'cgst',
+      sgst: 'sgst',
+      salAIS: 'salaryAis',
+      intAIS: 'interestAis',
+      accountName: 'accountName',
+      accountNo: 'accountNo'
+    };
+
+    const targetKey = keyMap[fieldId];
+    if (!targetKey) return;
+
+    let nextExtData = {};
+
+    const updatedDocs = documents.map(d => {
+      if (d.id === selectedDocId) {
+        nextExtData = {
+          ...d.extractedData,
+          [targetKey]: parsedVal
+        };
+        
+        if (d.type === 'Invoice') {
+          const base = targetKey === 'baseValue' ? parsedVal : (d.extractedData.baseValue || 0);
+          const cgst = targetKey === 'cgst' ? parsedVal : (d.extractedData.cgst || 0);
+          const sgst = targetKey === 'sgst' ? parsedVal : (d.extractedData.sgst || 0);
+          nextExtData.total = base + cgst + sgst;
+        }
+
+        return {
+          ...d,
+          extractedData: nextExtData
+        };
+      }
+      return d;
+    });
+
+    setDocuments(updatedDocs);
+    setHoveredField(prev => prev ? { ...prev, value: newValue } : null);
+
+    const activeDoc = updatedDocs.find(d => d.id === selectedDocId);
+    if (activeDoc) {
+      logEvent("Parsed Data Corrected", `Taxpayer manually overrode OCR field [${fieldId}] to: ${newValue}`);
+      
+      if (activeDoc.type === 'Bank Statement') {
+        const trans = activeDoc.transactions || [];
+        const auditResult = auditParsedTransactions(trans, activeDoc.name);
+        setFindings(auditResult.findings);
+        
+        setActiveSession(prev => prev ? {
+          ...prev,
+          overallScore: auditResult.overallScore,
+          reconciliationData: auditResult.reconciliationData
+        } : null);
+      } else if (activeDoc.type === 'Form 16') {
+        const f16Salary = nextExtData?.grossSalary || 1850000;
+        const f16Tds = nextExtData?.tdsClaimed || 185000;
+        const actualTds = 135000;
+
+        const aisDoc = updatedDocs.find(d => d.type === 'AIS');
+        const aisSalary = aisDoc?.extractedData?.salaryAis || 2050000;
+
+        const updatedFindings = [
+          {
+            id: `find-tax-tdsmismatch-${Date.now()}`,
+            severity: Math.abs(f16Tds - actualTds) > 100 ? "critical" : "low",
+            title: "TDS Claim Credit Mismatch",
+            taxSection: "Section 199 / Rule 37BA",
+            description: Math.abs(f16Tds - actualTds) > 100 
+              ? `The TDS credit claimed in your Form 16 (₹${f16Tds.toLocaleString('en-IN')}) exceeds the actual tax credits deposited in Form 26AS (₹${actualTds.toLocaleString('en-IN')}) by ₹${Math.abs(f16Tds - actualTds).toLocaleString('en-IN')} in statement ${activeDoc.name}.`
+              : `TDS credit claimed in Form 16 (₹${f16Tds.toLocaleString('en-IN')}) matches Form 26AS records perfectly.`,
+            whyItMatters: "The CPC portal disallows tax credit claims exceeding Form 26AS matching records automatically, generating immediate demand adjustments under Section 143(1) plus interest.",
+            amountMismatch: { expected: actualTds, actual: f16Tds, difference: Math.abs(f16Tds - actualTds) },
+            suggestedCorrection: Math.abs(f16Tds - actualTds) > 100 
+              ? "Reach out to your employer to file a correction TDS return (Form 24Q) crediting the variance to your PAN."
+              : "No correction required.",
+            confidenceScore: 1.0,
+            documentSource: `Form 16 (${activeDoc.name})`
+          },
+          {
+            id: `find-tax-salaryomission-${Date.now()}`,
+            severity: Math.abs(aisSalary - f16Salary) > 1000 ? "high" : "low",
+            title: "Omission of Taxable Salary",
+            taxSection: "Section 192",
+            description: Math.abs(aisSalary - f16Salary) > 1000
+              ? `Employer reported gross salary of ₹${f16Salary.toLocaleString('en-IN')} in Form 16. However, the AIS displays total taxable salary payments of ₹${aisSalary.toLocaleString('en-IN')} (a difference of ₹${Math.abs(aisSalary - f16Salary).toLocaleString('en-IN')}).`
+              : `Gross Salary in Form 16 (₹${f16Salary.toLocaleString('en-IN')}) aligns with AIS records.`,
+            whyItMatters: "Mismatches in gross salary are flagged automatically by tax systems. Omissions lead to standard notices for underreporting taxable income.",
+            amountMismatch: { expected: aisSalary, actual: f16Salary, difference: Math.abs(aisSalary - f16Salary) },
+            suggestedCorrection: Math.abs(aisSalary - f16Salary) > 1000
+              ? `Include the additional ₹${Math.abs(aisSalary - f16Salary).toLocaleString('en-IN')} bonus or residual salary payment under Schedule Salary in your draft ITR.`
+              : "No action required.",
+            confidenceScore: 0.96,
+            documentSource: `AIS Statement (${aisDoc?.name || 'AIS'})`
+          }
+        ];
+        
+        setFindings(updatedFindings);
+      }
+    }
+  };
+
   const handleClearWorkspace = () => {
     setDocuments([]);
     setFindings([]);
@@ -535,7 +661,9 @@ export default function UploadWorkspace({
         { id: "pan", name: "Employee PAN", top: "18.5%", left: "73%", width: "16%", height: "4.5%", value: data.employeePan || "BHUPR1982M", conf: "99.8%" },
         { id: "tan", name: "Employer TAN", top: "21.5%", left: "28%", width: "16%", height: "4.5%", value: data.employerTan || "MUMT01928E", conf: "99.2%" },
         { id: "salary", name: "Gross Salary (Sec 17)", top: "31.2%", left: "80%", width: "15%", height: "4.5%", value: data.grossSalary !== undefined ? `₹${data.grossSalary.toLocaleString('en-IN')}` : "₹18,50,000", conf: "98.5%" },
+        { id: "stdDed", name: "Standard Deduction (Sec 16)", top: "35.3%", left: "80%", width: "15%", height: "4.5%", value: data.standardDeduction !== undefined ? `₹${data.standardDeduction.toLocaleString('en-IN')}` : "₹50,000", conf: "99.0%" },
         { id: "ded80C", name: "80C Deductions", top: "39.5%", left: "80%", width: "15%", height: "4.5%", value: data.deductions80C !== undefined ? `₹${data.deductions80C.toLocaleString('en-IN')}` : "₹1,50,000", conf: "97.9%" },
+        { id: "ded80D", name: "80D Deductions", top: "43.7%", left: "80%", width: "15%", height: "4.5%", value: data.deductions80D !== undefined ? `₹${data.deductions80D.toLocaleString('en-IN')}` : "₹50,000", conf: "98.8%" },
         { id: "tds", name: "TDS Claimed", top: "91%", left: "80%", width: "15%", height: "5%", value: data.tdsClaimed !== undefined ? `₹${data.tdsClaimed.toLocaleString('en-IN')}` : "₹1,85,000", conf: "99.5%" }
       ];
     }
@@ -971,7 +1099,21 @@ export default function UploadWorkspace({
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem', alignItems: 'center' }}>
                         <span>2. Deductions under Section 16 (Standard)</span>
-                        <span>₹50,000</span>
+                        <span 
+                          onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'stdDed'))}
+                          onMouseLeave={() => setHoveredField(null)}
+                          style={{ 
+                            fontWeight: 'bold', 
+                            position: 'relative', 
+                            padding: '0.05rem 0.25rem',
+                            border: hoveredField?.id === 'stdDed' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: hoveredField?.id === 'stdDed' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            borderRadius: '4px',
+                            cursor: 'crosshair'
+                          }}
+                        >
+                          {currentDoc.extractedData?.standardDeduction !== undefined ? `₹${currentDoc.extractedData.standardDeduction.toLocaleString('en-IN')}` : "₹50,000"}
+                        </span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem', alignItems: 'center' }}>
                         <span>3. Deductions under Chapter VI-A (Section 80C)</span>
@@ -993,7 +1135,21 @@ export default function UploadWorkspace({
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem', alignItems: 'center' }}>
                         <span>4. Deductions under Section 80D</span>
-                        <span>₹50,000</span>
+                        <span 
+                          onMouseEnter={() => setHoveredField(activeBoxes.find(b => b.id === 'ded80D'))}
+                          onMouseLeave={() => setHoveredField(null)}
+                          style={{ 
+                            fontWeight: 'bold', 
+                            position: 'relative', 
+                            padding: '0.05rem 0.25rem',
+                            border: hoveredField?.id === 'ded80D' ? '1.5px solid var(--accent)' : '1.5px dashed var(--color-high)',
+                            background: hoveredField?.id === 'ded80D' ? 'var(--accent-glow)' : 'rgba(249, 115, 22, 0.02)',
+                            borderRadius: '4px',
+                            cursor: 'crosshair'
+                          }}
+                        >
+                          {currentDoc.extractedData?.deductions80D !== undefined ? `₹${currentDoc.extractedData.deductions80D.toLocaleString('en-IN')}` : "₹50,000"}
+                        </span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.2rem', marginTop: 'auto', alignItems: 'center' }}>
                         <strong>5. Net Tax Deducted at Source (TDS)</strong>
@@ -1396,9 +1552,26 @@ export default function UploadWorkspace({
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '0.4rem' }}>
-                        <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Extracted Field Value</span>
-                        <strong style={{ color: 'var(--text-primary)', fontFamily: 'monospace' }}>{hoveredField.value}</strong>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.6rem' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontWeight: 500, fontSize: '0.75rem' }}>Extracted Field Value (Editable Override)</span>
+                        <input 
+                          type="text"
+                          value={hoveredField.value}
+                          onChange={(e) => handleUpdateFieldValue(hoveredField.id, e.target.value)}
+                          style={{ 
+                            background: 'var(--bg-primary)', 
+                            border: '1.5px solid var(--accent)', 
+                            borderRadius: '6px', 
+                            padding: '0.45rem 0.6rem', 
+                            color: 'var(--text-primary)',
+                            fontFamily: 'monospace',
+                            fontSize: '0.85rem',
+                            fontWeight: 'bold',
+                            width: '100%',
+                            outline: 'none',
+                            marginTop: '0.2rem'
+                          }}
+                        />
                       </div>
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '0.4rem' }}>
